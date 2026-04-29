@@ -245,18 +245,18 @@ class _SearchScreenState extends State<SearchScreen> {
     // 임시 데이터. 다양한 태그 포함
     final List<Map<String, dynamic>> allItems = [];
     if (_selectedTab == 0 || _selectedTab == 1) {
-      allItems.add({'type': 'lost', 'title': '검정색 가죽 지갑', 'desc': '신분증과 카드가 들어있습니다.', 'loc': '강남역 2번 출구', 'date': '03.20', 'tags': ['지갑', '카드/신분증'], 'match': 100});
-      allItems.add({'type': 'lost', 'title': 'iPhone 15 Pro', 'desc': '티타늄 블루', 'loc': '홍대입구역', 'date': '03.21', 'tags': ['스마트폰'], 'match': 95});
-      allItems.add({'type': 'lost', 'title': '무선 이어폰', 'desc': '에어팟 2세대', 'loc': '강남역', 'date': '03.19', 'tags': ['이어폰'], 'match': 0});
-      allItems.add({'type': 'lost', 'title': '나이키 맨투맨', 'desc': '파란색 L사이즈', 'loc': '신도림역', 'date': '03.22', 'tags': ['의류'], 'match': 0});
-      allItems.add({'type': 'lost', 'title': '갈색 백팩', 'desc': '노트북이 들어있어요', 'loc': '서울역', 'date': '03.18', 'tags': ['가방'], 'match': 0});
+      allItems.add({'type': 'lost', 'title': '검정색 가죽 지갑', 'desc': '신분증과 카드가 들어있습니다.', 'loc': '강남역 2번 출구', 'date': '03.20', 'time': '10분 전', 'tags': ['지갑', '카드/신분증'], 'match': 100});
+      allItems.add({'type': 'lost', 'title': 'iPhone 15 Pro', 'desc': '티타늄 블루', 'loc': '홍대입구역', 'date': '03.21', 'time': '1시간 전', 'tags': ['스마트폰'], 'match': 95});
+      allItems.add({'type': 'lost', 'title': '무선 이어폰', 'desc': '에어팟 2세대', 'loc': '강남역', 'date': '03.19', 'time': '2시간 전', 'tags': ['이어폰'], 'match': 0});
+      allItems.add({'type': 'lost', 'title': '나이키 맨투맨', 'desc': '파란색 L사이즈', 'loc': '신도림역', 'date': '03.22', 'time': '1일 전', 'tags': ['의류'], 'match': 0});
+      allItems.add({'type': 'lost', 'title': '갈색 백팩', 'desc': '노트북이 들어있어요', 'loc': '서울역', 'date': '03.18', 'time': '2일 전', 'tags': ['가방'], 'match': 0});
     }
     if (_selectedTab == 0 || _selectedTab == 2) {
-      allItems.add({'type': 'found', 'title': '가죽 지갑', 'desc': '가죽 지갑 주웠습니다.', 'loc': '강남역 3번 출구', 'date': '03.20', 'tags': ['지갑'], 'match': 0});
-      allItems.add({'type': 'found', 'title': '스마트폰', 'desc': '화면 금간 아이폰', 'loc': '홍대입구역', 'date': '03.21', 'tags': ['스마트폰'], 'match': 0});
-      allItems.add({'type': 'found', 'title': '투명 우산', 'desc': '편의점 우산', 'loc': '사당역', 'date': '03.22', 'tags': ['우산'], 'match': 0});
-      allItems.add({'type': 'found', 'title': '학생증 카드', 'desc': '한국대 학생증 잃어버리신분', 'loc': '강남역 버스정류장', 'date': '03.23', 'tags': ['카드/신분증'], 'match': 0});
-      allItems.add({'type': 'found', 'title': '소니 노이즈캔슬링', 'desc': '헤드폰 습득', 'loc': '신촌역', 'date': '03.24', 'tags': ['이어폰'], 'match': 0});
+      allItems.add({'type': 'found', 'title': '가죽 지갑', 'desc': '가죽 지갑 주웠습니다.', 'loc': '강남역 3번 출구', 'date': '03.20', 'time': '5분 전', 'tags': ['지갑'], 'match': 0});
+      allItems.add({'type': 'found', 'title': '스마트폰', 'desc': '화면 금간 아이폰', 'loc': '홍대입구역', 'date': '03.21', 'time': '1시간 전', 'tags': ['스마트폰'], 'match': 0});
+      allItems.add({'type': 'found', 'title': '투명 우산', 'desc': '편의점 우산', 'loc': '사당역', 'date': '03.22', 'time': '3시간 전', 'tags': ['우산'], 'match': 0});
+      allItems.add({'type': 'found', 'title': '학생증 카드', 'desc': '한국대 학생증 잃어버리신분', 'loc': '강남역 버스정류장', 'date': '03.23', 'time': '1일 전', 'tags': ['카드/신분증'], 'match': 0});
+      allItems.add({'type': 'found', 'title': '소니 노이즈캔슬링', 'desc': '헤드폰 습득', 'loc': '신촌역', 'date': '03.24', 'time': '3일 전', 'tags': ['이어폰'], 'match': 0});
     }
 
     // 태그 필터링
@@ -317,12 +317,12 @@ class _SearchScreenState extends State<SearchScreen> {
           if (item['type'] == 'lost') {
             return LostItemCard(
               title: item['title'], desc: item['desc'], location: item['loc'], 
-              date: item['date'], tags: List<String>.from(item['tags']), matchPercent: item['match']
+              date: item['date'], time: item['time'], tags: List<String>.from(item['tags']), matchPercent: item['match']
             );
           } else {
             return FoundItemCard(
               title: item['title'], desc: item['desc'], location: item['loc'], 
-              date: item['date'], tags: List<String>.from(item['tags'])
+              date: item['date'], time: item['time'], tags: List<String>.from(item['tags'])
             );
           }
         },

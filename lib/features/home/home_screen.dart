@@ -62,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: '검정색 가죽 지갑',
                     desc: '습득된 검정색 가죽 지갑과 매우 유사합니다.',
                     location: '강남역 2번 출구',
+                    time: '10분 전',
                     matchPercent: 100,
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchDetailScreen(
                       myItemTitle: '내 검정색 지갑', counterpartTitle: '습득된 검정색 가죽 지갑', similarityScore: 1.0, myTags: ['지갑', '가죽'], counterpartTags: ['지갑'],
@@ -71,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: 'iPhone 15 Pro',
                     desc: '등록하신 폰 정보와 일치하는 습득물이 있습니다.',
                     location: '홍대입구역 9번 출구',
+                    time: '1시간 전',
                     matchPercent: 95,
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchDetailScreen(
                       myItemTitle: 'iPhone 15 Pro', counterpartTitle: '스마트폰', similarityScore: 0.95, myTags: ['폰', '애플'], counterpartTags: ['스마트폰'],
@@ -80,18 +82,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: '에어팟 3세대',
                     desc: '신촌역에서 습득된 무선 이어폰과 유사합니다.',
                     location: '신촌역',
+                    time: '2시간 전',
                     matchPercent: 80,
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchDetailScreen(
                       myItemTitle: '에어팟', counterpartTitle: '무선 이어폰', similarityScore: 0.8,
                     ))),
                   ),
-                  _buildVerticalMatchCard(title: '파란색 우산', desc: '비슷한 파란색 우산이 서울역 분실물 센터에 보관 중입니다.', location: '서울역', matchPercent: 75, onTap: (){}),
-                  _buildVerticalMatchCard(title: '갈색 크로스백', desc: '색상이 일치하는 가방이 습득되었습니다.', location: '여의도', matchPercent: 60, onTap: (){}),
+                  _buildVerticalMatchCard(title: '파란색 우산', desc: '비슷한 파란색 우산이 서울역 분실물 센터에 보관 중입니다.', location: '서울역', time: '3시간 전', matchPercent: 75, onTap: (){}),
+                  _buildVerticalMatchCard(title: '갈색 크로스백', desc: '색상이 일치하는 가방이 습득되었습니다.', location: '여의도', time: '5시간 전', matchPercent: 60, onTap: (){}),
                   
                   if (_isExpanded) ...[
-                    _buildVerticalMatchCard(title: '검정 뿔테 안경', desc: '도서관에서 습득된 안경과 특징이 유사합니다.', location: '시립도서관', matchPercent: 55, onTap: (){}),
-                    _buildVerticalMatchCard(title: '샤오미 보조배터리', desc: '버스에서 분실된 물품과 동일한 모델입니다.', location: '버스 분실물센터', matchPercent: 50, onTap: (){}),
-                    _buildVerticalMatchCard(title: '회색 니트 목도리', desc: '카페에 보관 중인 목도리와 색상이 같습니다.', location: '스타벅스 강남본점', matchPercent: 40, onTap: (){}),
+                    _buildVerticalMatchCard(title: '검정 뿔테 안경', desc: '도서관에서 습득된 안경과 특징이 유사합니다.', location: '시립도서관', time: '1일 전', matchPercent: 55, onTap: (){}),
+                    _buildVerticalMatchCard(title: '샤오미 보조배터리', desc: '버스에서 분실된 물품과 동일한 모델입니다.', location: '버스 분실물센터', time: '1일 전', matchPercent: 50, onTap: (){}),
+                    _buildVerticalMatchCard(title: '회색 니트 목도리', desc: '카페에 보관 중인 목도리와 색상이 같습니다.', location: '스타벅스 강남본점', time: '2일 전', matchPercent: 40, onTap: (){}),
                   ],
                   
                   // 더보기 / 접기 버튼을 카드 리스트 맨 밑으로 이동
@@ -130,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required String desc,
     required String location,
+    required String time,
     required int matchPercent,
     required VoidCallback onTap,
   }) {
@@ -179,10 +183,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(desc, style: TextStyle(color: Colors.grey.shade700, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 8),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.location_on, size: 14, color: Colors.grey.shade500),
-                        const SizedBox(width: 4),
-                        Expanded(child: Text(location, style: TextStyle(color: Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on, size: 14, color: Colors.grey.shade500),
+                            const SizedBox(width: 4),
+                            Text(location, style: TextStyle(color: Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                        Text(time, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
                       ],
                     ),
                   ],

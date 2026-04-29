@@ -6,6 +6,7 @@ class LostItemCard extends StatelessWidget {
   final String desc;
   final String location;
   final String date;
+  final String time;
   final List<String> tags;
   final int matchPercent;
 
@@ -15,6 +16,7 @@ class LostItemCard extends StatelessWidget {
     required this.desc,
     required this.location,
     required this.date,
+    required this.time,
     required this.tags,
     this.matchPercent = 0,
   });
@@ -60,12 +62,15 @@ class LostItemCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        if (matchPercent > 0)
+                        Text(time, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
+                        if (matchPercent > 0) ...[
+                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(12)),
                             child: Text('$matchPercent%', style: TextStyle(color: Colors.blue.shade800, fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
+                        ]
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -106,6 +111,7 @@ class FoundItemCard extends StatelessWidget {
   final String desc;
   final String location;
   final String date;
+  final String time;
   final List<String> tags;
 
   const FoundItemCard({
@@ -114,6 +120,7 @@ class FoundItemCard extends StatelessWidget {
     required this.desc,
     required this.location,
     required this.date,
+    required this.time,
     required this.tags,
   });
 
@@ -153,7 +160,13 @@ class FoundItemCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Text(time, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
+                      ],
+                    ),
                     const SizedBox(height: 6),
                     Text(desc, style: TextStyle(color: Colors.grey.shade700, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 8),
@@ -273,6 +286,7 @@ class ItemGridCard extends StatelessWidget {
                         const Icon(Icons.location_on_outlined, size: 12, color: Colors.grey),
                         const SizedBox(width: 4),
                         Expanded(child: Text(item['loc'], style: TextStyle(color: Colors.grey.shade600, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Text(item['time'] ?? '', style: TextStyle(color: Colors.grey.shade400, fontSize: 9)),
                       ],
                     ),
                   ],
