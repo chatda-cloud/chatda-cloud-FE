@@ -17,6 +17,8 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _locationController = TextEditingController();
+  final _dateController = TextEditingController(text: '2026년 04월 05일');
+  DateTime? _selectedDate;
 
   bool get _isEditMode => widget.editItem != null;
 
@@ -32,6 +34,21 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
       if (existingTags != null) {
         _tags.addAll(existingTags);
       }
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = '${picked.year}년 ${picked.month.toString().padLeft(2, '0')}월 ${picked.day.toString().padLeft(2, '0')}일';
+      });
     }
   }
 
@@ -80,26 +97,85 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: const Icon(Icons.check_circle, color: Color(0xFF059669), size: 48),
-        title: const Text('완료'),
-        content: Text(message, textAlign: TextAlign.center),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            ),
-            child: const Text('확인'),
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10.0,
+                offset: Offset(0.0, 10.0),
+              ),
+            ],
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 24.0),
+              const Text(
+                '완료',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 32.0),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    '확인',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -123,7 +199,7 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
         'title': _titleController.text.trim(),
         'desc': _descController.text.trim(),
         'location': _locationController.text.trim().isEmpty ? '알 수 없음' : _locationController.text.trim(),
-        'date': '2026년 04월 05일',
+        'date': _dateController.text,
         'tags': _tags.isEmpty ? ['습득물'] : List<String>.from(_tags),
       });
       _showSuccessDialog('습득물이 등록되었습니다.');
@@ -263,14 +339,12 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
               const SizedBox(height: 8),
               TextField(
                 readOnly: true,
+                controller: _dateController,
                 decoration: const InputDecoration(
-                  hintText: '2026-04-05',
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                   suffixIcon: Icon(Icons.arrow_drop_down),
                 ),
-                onTap: () {
-                  // TODO: 오픈 데이트피커
-                },
+                onTap: () => _selectDate(context),
               ),
               const SizedBox(height: 24),
 
