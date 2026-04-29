@@ -1,56 +1,99 @@
 import 'package:flutter/material.dart';
 import 'chat_detail_screen.dart';
 
-class ChatListScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'chat_detail_screen.dart';
+
+class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
 
   @override
+  State<ChatListScreen> createState() => _ChatListScreenState();
+}
+
+class _ChatListScreenState extends State<ChatListScreen> {
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  // 하드코딩된 더미 채팅 데이터
+  final List<Map<String, dynamic>> _allChatData = [
+    {
+      'name': '습득자(익명)',
+      'item': '검정색 가죽 지갑',
+      'lastMsg': '네, 내일 오후 2시에 강남역 3번 출구에서 뵐게요.',
+      'time': '오후 8:43',
+      'unread': 1,
+    },
+    {
+      'name': '분실자(익명)',
+      'item': '무선 이어폰',
+      'lastMsg': '보관장소에 맡겨주셔서 감사합니다!',
+      'time': '어제',
+      'unread': 0,
+    },
+    {
+      'name': '습득자(익명)',
+      'item': 'iPhone 15 Pro',
+      'lastMsg': '혹시 배경화면이 고양이 사진인가요?',
+      'time': '3월 21일',
+      'unread': 0,
+    },
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    // 하드코딩된 더미 채팅 데이터
-    final chatData = [
-      {
-        'name': '습득자(익명)',
-        'item': '검정색 가죽 지갑',
-        'lastMsg': '네, 내일 오후 2시에 강남역 3번 출구에서 뵐게요.',
-        'time': '오후 8:43',
-        'unread': 1,
-      },
-      {
-        'name': '분실자(익명)',
-        'item': '무선 이어폰',
-        'lastMsg': '보관장소에 맡겨주셔서 감사합니다!',
-        'time': '어제',
-        'unread': 0,
-      },
-      {
-        'name': '습득자(익명)',
-        'item': 'iPhone 15 Pro',
-        'lastMsg': '혹시 배경화면이 고양이 사진인가요?',
-        'time': '3월 21일',
-        'unread': 0,
-      },
-    ];
+    final filteredData = _allChatData.where((chat) {
+      final title = chat['item'] as String;
+      final name = chat['name'] as String;
+      final query = _searchQuery.toLowerCase();
+      return title.toLowerCase().contains(query) || name.toLowerCase().contains(query);
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('채팅', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: '채팅방 검색...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              )
+            : const Text('채팅', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _searchQuery = '';
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
           ),
         ],
       ),
-      body: chatData.isEmpty
-          ? const Center(child: Text('진행 중인 채팅이 없습니다.', style: TextStyle(color: Colors.grey)))
+      body: filteredData.isEmpty
+          ? const Center(child: Text('검색 결과가 없습니다.', style: TextStyle(color: Colors.grey)))
           : ListView.separated(
-              itemCount: chatData.length,
+              itemCount: filteredData.length,
               separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade200),
               itemBuilder: (context, index) {
-                final chat = chatData[index];
+                final chat = filteredData[index];
                 final unread = chat['unread'] as int;
 
                 return ListTile(
@@ -102,3 +145,4 @@ class ChatListScreen extends StatelessWidget {
     );
   }
 }
+
