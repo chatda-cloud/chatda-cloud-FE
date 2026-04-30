@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/user_provider.dart';
+import '../../widgets/chatda_dialog.dart';
 
 class MyPageEditScreen extends ConsumerStatefulWidget {
   const MyPageEditScreen({super.key});
@@ -44,110 +45,120 @@ class _MyPageEditScreenState extends ConsumerState<MyPageEditScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: DefaultTabController(
-            length: 4,
-            child: Column(
-              children: [
-                Card(
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text('정보 수정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 24),
-                        
-                        _buildLabel('이메일'),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(hintText: 'demo@example.com'),
-                          keyboardType: TextInputType.emailAddress,
+          child: Column(
+            children: [
+              Card(
+                elevation: 0, // 그림자 제거 → 검은 모서리 방지
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('정보 수정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 24),
+                      
+                      _buildLabel('이메일'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          hintText: 'demo@example.com',
+                          hintStyle: TextStyle(color: Colors.grey.shade400),
+                          filled: true,
+                          fillColor: const Color(0xFFF1F5F9),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
-                        const SizedBox(height: 24),
-                        
-                        _buildLabel('이름'),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(hintText: '데모 사용자'),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      _buildLabel('닉네임'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          hintText: '데모 사용자',
+                          hintStyle: TextStyle(color: Colors.grey.shade400),
+                          filled: true,
+                          fillColor: const Color(0xFFF1F5F9),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
-                        const SizedBox(height: 24),
-                        
-                        _buildLabel('전화번호'),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(hintText: '010-1234-5678'),
-                          keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      _buildLabel('전화번호'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          hintText: '010-1234-5678',
+                          hintStyle: TextStyle(color: Colors.grey.shade400),
+                          filled: true,
+                          fillColor: const Color(0xFFF1F5F9),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
-                        const SizedBox(height: 32),
-                        
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  side: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                child: Text('취소', style: TextStyle(color: Colors.grey.shade700, fontSize: 16)),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                side: BorderSide(color: Colors.grey.shade300),
                               ),
+                              child: Text('취소', style: TextStyle(color: Colors.grey.shade700, fontSize: 16)),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  ref.read(userProvider.notifier).updateUser(
-                                    email: _emailController.text.trim(),
-                                    name: _nameController.text.trim(),
-                                    phone: _phoneController.text.trim(),
-                                  );
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (ctx) => AlertDialog(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      icon: const Icon(Icons.check_circle, color: Color(0xFF059669), size: 48),
-                                      title: const Text('완료'),
-                                      content: const Text('정보가 수정되었습니다.', textAlign: TextAlign.center),
-                                      actionsAlignment: MainAxisAlignment.center,
-                                      actions: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(ctx);
-                                            Navigator.pop(context);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF2563EB),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                                          ),
-                                          child: const Text('확인'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  backgroundColor: const Color(0xFF2563EB),
-                                ),
-                                child: const Text('저장', style: TextStyle(fontSize: 16)),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref.read(userProvider.notifier).updateUser(
+                                  email: _emailController.text.trim(),
+                                  name: _nameController.text.trim(),
+                                  phone: _phoneController.text.trim(),
+                                );
+                                ChatdaDialog.showSuccess(
+                                  context: context,
+                                  message: '정보가 수정되었습니다.',
+                                  onConfirm: () => Navigator.pop(context),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                backgroundColor: const Color(0xFF6B8EFF),
+                                elevation: 0,
                               ),
+                              child: const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

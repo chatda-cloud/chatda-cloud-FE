@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/items_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../widgets/chatda_dialog.dart';
 import 'mypage_edit_screen.dart';
 import 'settings_screen.dart';
 import '../auth/login_screen.dart';
@@ -168,56 +169,22 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   }
 
   void _deleteItem(Map<String, dynamic> item, {required bool isLost}) {
-    showDialog(
+    ChatdaDialog.showConfirm(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('삭제'),
-        content: const Text('정말로 이 항목을 삭제하시겠습니까?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('취소')),
-          TextButton(
-            onPressed: () {
-              if (isLost) {
-                ref.read(itemsProvider.notifier).removeLostItem(item['id'] as int);
-              } else {
-                ref.read(itemsProvider.notifier).removeFoundItem(item['id'] as int);
-              }
-              Navigator.pop(ctx);
-              _showResultDialog('항목이 삭제되었습니다.', isSuccess: true);
-            },
-            child: const Text('삭제', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      )
-    );
-  }
-
-  void _showResultDialog(String message, {bool isSuccess = true}) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: Icon(
-          isSuccess ? Icons.check_circle : Icons.error_outline,
-          color: isSuccess ? const Color(0xFF059669) : Colors.redAccent,
-          size: 48,
-        ),
-        title: Text(isSuccess ? '완료' : '오류'),
-        content: Text(message, textAlign: TextAlign.center),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            ),
-            child: const Text('확인'),
-          ),
-        ],
-      ),
+      title: '삭제 확인',
+      message: '정말로 이 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+      confirmText: '삭제',
+      onConfirm: () {
+        if (isLost) {
+          ref.read(itemsProvider.notifier).removeLostItem(item['id'] as int);
+        } else {
+          ref.read(itemsProvider.notifier).removeFoundItem(item['id'] as int);
+        }
+        ChatdaDialog.showSuccess(
+          context: context,
+          message: '항목이 삭제되었습니다.',
+        );
+      },
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/items_provider.dart';
+import '../../widgets/chatda_dialog.dart';
 
 class RegisterFoundItemScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? editItem;
@@ -94,89 +95,10 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
   }
 
   void _showSuccessDialog(String message) {
-    showDialog(
+    ChatdaDialog.showSuccess(
       context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10.0,
-                offset: Offset(0.0, 10.0),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 48,
-                ),
-              ),
-              const SizedBox(height: 24.0),
-              const Text(
-                '완료',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 32.0),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    '확인',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      message: message,
+      onConfirm: () => Navigator.pop(context),
     );
   }
 
@@ -223,26 +145,59 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
               GestureDetector(
                 onTap: _showImagePickerModal,
                 child: Container(
-                  height: 200,
+                  height: 180,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: const Color(0xFFEEEEEE), // 연한 회색 배경
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                      width: 2,
-                      strokeAlign: BorderSide.strokeAlignOutside,
-                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.camera_alt_outlined, size: 48, color: Colors.grey.shade400),
+                      Icon(Icons.camera_alt_outlined, size: 48, color: Colors.grey.shade500),
                       const SizedBox(height: 12),
-                      Text('사진 업로드', style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold)),
+                      Text('사진 업로드', style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
-                      Text('AI가 자동으로 특징을 분석합니다', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                      Text('AI 자동으로 특징을 분석합니다.', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // AI 태깅 영역
+              const Text('AI 태깅', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: const [
+                              _AITagChip(label: '#지갑'),
+                              _AITagChip(label: '#갈색'),
+                              _AITagChip(label: '#명품'),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.edit_outlined, color: Colors.grey.shade600, size: 20),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
@@ -393,6 +348,30 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
           if (required)
             const TextSpan(text: ' *', style: TextStyle(color: Colors.redAccent)),
         ],
+      ),
+    );
+  }
+}
+
+class _AITagChip extends StatelessWidget {
+  final String label;
+  const _AITagChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.grey.shade800,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
       ),
     );
   }

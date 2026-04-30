@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import '../home/home_screen.dart';
 import '../search/search_screen.dart';
@@ -77,8 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                     color: Colors.orange,
                     onTap: () {
                       Navigator.pop(context);
-                      // 현재 선택된 탭의 네비게이터를 통해 화면 이동, 네비게이션 바 유지됨
-                      _navigatorKeys[_currentIndex].currentState?.push(
+                      Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(builder: (_) => const RegisterLostItemScreen())
                       );
                     },
@@ -94,7 +94,7 @@ class _MainScreenState extends State<MainScreen> {
                     color: Colors.green,
                     onTap: () {
                       Navigator.pop(context);
-                      _navigatorKeys[_currentIndex].currentState?.push(
+                      Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(builder: (_) => const RegisterFoundItemScreen())
                       );
                     },
@@ -150,8 +150,8 @@ class _MainScreenState extends State<MainScreen> {
         switch (index) {
           case 0:
             builder = (context) => HomeScreen(
-              onNavigateToRegisterLost: () => _navigatorKeys[0].currentState?.push(MaterialPageRoute(builder: (_) => const RegisterLostItemScreen())),
-              onNavigateToRegisterFound: () => _navigatorKeys[0].currentState?.push(MaterialPageRoute(builder: (_) => const RegisterFoundItemScreen())),
+              onNavigateToRegisterLost: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const RegisterLostItemScreen())),
+              onNavigateToRegisterFound: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const RegisterFoundItemScreen())),
             );
             break;
           case 1:
@@ -177,6 +177,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true, // 바텀바 뒤로 컨텐츠가 스크롤되도록 설정
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -188,52 +189,117 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       bottomNavigationBar: Container(
+        margin: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.of(context).padding.bottom + 16),
+        height: 72, // 바 높이를 키워서 원형 인디케이터가 들어갈 공간 확보
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(36),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5)),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: _onTabTapped,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.grey.shade400,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          selectedFontSize: 11,
-          unselectedFontSize: 11,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.home),
-              activeIcon: Icon(CupertinoIcons.house_fill),
-              label: '홈',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(36),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: Colors.white.withOpacity(0.6), // 투명도를 낮춰 블러 효과 극대화
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final totalWidth = constraints.maxWidth;
+                  final hPadding = 10.0; // 양쪽 끝 여백 (곡률 안쪽 보호)
+                  final usableWidth = totalWidth - hPadding * 2;
+                  final itemWidth = usableWidth / 5;
+                  final bubbleSize = 56.0;
+                  final bubbleLeft = hPadding + (_currentIndex * itemWidth) + (itemWidth - bubbleSize) / 2;
+                  return Stack(
+                    children: [
+                      // 부드럽게 이동하는 물방울(원형) 배경
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        left: bubbleLeft,
+                        top: (72 - bubbleSize) / 2, // 세로 중앙 정렬
+                        child: Container(
+                          width: bubbleSize,
+                          height: bubbleSize,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // 아이콘 및 텍스트 탭 영역
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: hPadding),
+                        child: Row(
+                          children: [
+                            _buildNavItem(0, CupertinoIcons.home, CupertinoIcons.house_fill, '홈'),
+                            _buildNavItem(1, CupertinoIcons.search, CupertinoIcons.search, '탐색'),
+                            _buildNavItem(2, CupertinoIcons.add, CupertinoIcons.add_circled_solid, '등록'),
+                            _buildNavItem(3, CupertinoIcons.chat_bubble_2, CupertinoIcons.chat_bubble_2_fill, '채팅'),
+                            _buildNavItem(4, CupertinoIcons.person, CupertinoIcons.person_fill, 'MY'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.search),
-              activeIcon: Icon(CupertinoIcons.search),
-              label: '탐색',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.add),
-              activeIcon: Icon(CupertinoIcons.add_circled_solid),
-              label: '등록',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.chat_bubble_2),
-              activeIcon: Icon(CupertinoIcons.chat_bubble_2_fill),
-              label: '채팅',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.person),
-              activeIcon: Icon(CupertinoIcons.person_fill),
-              label: '마이',
-            ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    final isSelected = _currentIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onTabTapped(index),
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          height: 72,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  key: ValueKey<bool>(isSelected),
+                  color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade500,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 2),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade500,
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                child: Text(label),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
