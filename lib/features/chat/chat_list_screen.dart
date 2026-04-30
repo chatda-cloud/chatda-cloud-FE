@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chat_detail_screen.dart';
 
-import 'package:flutter/material.dart';
-import 'chat_detail_screen.dart';
-
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
 
@@ -56,9 +53,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
+                style: const TextStyle(fontSize: 16),
                 decoration: const InputDecoration(
                   hintText: '채팅방 검색...',
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  isDense: true,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -67,9 +70,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 },
               )
             : const Text('채팅', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -90,6 +90,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
       body: filteredData.isEmpty
           ? const Center(child: Text('검색 결과가 없습니다.', style: TextStyle(color: Colors.grey)))
           : ListView.separated(
+              padding: const EdgeInsets.only(bottom: 120), // 하단 바 뒤로 컨텐츠가 스크롤되도록 하단 여백 추가
               itemCount: filteredData.length,
               separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade200),
               itemBuilder: (context, index) {
@@ -134,7 +135,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     ],
                   ),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ChatDetailScreen(
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => ChatDetailScreen(
                       counterpartName: chat['name'] as String,
                       itemName: chat['item'] as String,
                     )));

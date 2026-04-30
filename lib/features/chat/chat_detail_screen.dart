@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/chatda_dialog.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   final String counterpartName;
@@ -16,6 +17,7 @@ class ChatDetailScreen extends StatefulWidget {
 
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
   final TextEditingController _msgController = TextEditingController();
+  bool _notificationOn = true;
   
   // 더미 메시지 데이터
   final List<Map<String, dynamic>> _messages = [
@@ -29,12 +31,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   void _sendMessage() {
     if (_msgController.text.trim().isEmpty) return;
-    
     setState(() {
       _messages.add({
         'text': _msgController.text.trim(),
         'isMe': true,
-        'time': '방금 전', // 실제 앱에서는 DateTime 포맷팅
+        'time': '방금 전',
       });
       _msgController.clear();
     });
@@ -51,7 +52,73 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onSelected: (value) {
+              switch (value) {
+                case 'notification':
+                  setState(() => _notificationOn = !_notificationOn);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(_notificationOn ? '알림이 켜졌습니다.' : '알림이 꺼졌습니다.'),
+                      duration: const Duration(seconds: 1),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                  break;
+                case 'report':
+                  ChatdaDialog.showSuccess(
+                    context: context,
+                    title: '신고 접수',
+                    message: '신고가 접수되었습니다.\n검토 후 조치하겠습니다.',
+                  );
+                  break;
+                case 'leave':
+                  ChatdaDialog.showConfirm(
+                    context: context,
+                    title: '채팅방 나가기',
+                    message: '채팅방을 나가시겠습니까?\n대화 내용이 삭제됩니다.',
+                    confirmText: '나가기',
+                    onConfirm: () => Navigator.pop(context),
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'notification',
+                child: Row(
+                  children: [
+                    Icon(_notificationOn ? Icons.notifications_off_outlined : Icons.notifications_outlined, size: 20, color: Colors.black54),
+                    const SizedBox(width: 12),
+                    Text(_notificationOn ? '알림 끄기' : '알림 켜기'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'report',
+                child: Row(
+                  children: [
+                    Icon(Icons.flag_outlined, size: 20, color: Colors.black54),
+                    SizedBox(width: 12),
+                    Text('신고하기'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'leave',
+                child: Row(
+                  children: [
+                    Icon(Icons.exit_to_app, size: 20, color: Colors.redAccent),
+                    SizedBox(width: 12),
+                    Text('채팅방 나가기', style: TextStyle(color: Colors.redAccent)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -139,7 +206,39 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.add, color: Colors.grey),
-                  onPressed: () {},
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                      builder: (ctx) => SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.camera_alt_outlined),
+                              title: const Text('카메라'),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: const Text('카메라 기능은 준비 중입니다.'), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.photo_library_outlined),
+                              title: const Text('사진 보내기'),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: const Text('갤러리 기능은 준비 중입니다.'), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 Expanded(
                   child: TextField(
