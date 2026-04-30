@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'features/auth/login_screen.dart';
+import 'features/auth/splash_screen.dart';
 
 void main() {
   // 상태바 투명하게 처리, 아이콘은 어둡게
@@ -31,7 +32,7 @@ class ChatdaApp extends StatelessWidget {
           background: const Color(0xFFF8FAFC),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xFFF8FAFC),
           elevation: 0,
           scrolledUnderElevation: 0,
           iconTheme: IconThemeData(color: Colors.black87),
@@ -87,7 +88,7 @@ class ChatdaApp extends StatelessWidget {
         ),
       ),
       // 시작 화면 지정
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }

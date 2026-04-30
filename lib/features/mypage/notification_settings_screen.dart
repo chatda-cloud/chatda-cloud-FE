@@ -18,7 +18,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('알림 설정', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
       ),
       body: SafeArea(
         child: ListView(

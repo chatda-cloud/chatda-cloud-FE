@@ -24,13 +24,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Chatda', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        title: Row(
+          children: [
+            Image.asset('assets/home.png', width: 40, height: 40, fit: BoxFit.contain),
+            const SizedBox(width: 8),
+            const Text('Chatda', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+          ],
+        ),
         centerTitle: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, size: 28),
@@ -42,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
+        bottom: false, // 하단 바 뒤로 컨텐츠가 스크롤되도록 하단 안전 영역 제거
         child: Column(
           children: [
             Padding(
@@ -56,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 120), // 하단 바에 컨텐츠가 가리지 않도록 넉넉한 하단 여백 추가
                 children: [
                   _buildVerticalMatchCard(
                     title: '검정색 가죽 지갑',
