@@ -150,12 +150,9 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('탐색', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: false,
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: Icon(_isGrid ? Icons.view_list_rounded : Icons.grid_view_rounded),
@@ -170,6 +167,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
       body: SafeArea(
+        bottom: false, // 하단 바 뒤로 컨텐츠가 스크롤되도록 하단 안전 영역 제거
         child: Column(
           children: [
             // 검색바 및 추천 태그, 탭 컨트롤
@@ -295,7 +293,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     if (_isGrid) {
       return GridView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 120), // 하단 바에 컨텐츠가 가리지 않도록 넉넉한 하단 여백 추가
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 220, // 카드의 최대 가로 크기를 제한하여 넓은 화면에서 늘어짐 방지
           mainAxisSpacing: 12,
@@ -310,7 +308,7 @@ class _SearchScreenState extends State<SearchScreen> {
       );
     } else {
       return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 120), // 하단 바에 컨텐츠가 가리지 않도록 넉넉한 하단 여백 추가
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
