@@ -79,8 +79,8 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
           const SizedBox(height: 24),
           GestureDetector(
             onTap: () {
-              Navigator.pop(context);
-              setState(() => _isMatched = true);
+              Navigator.pop(context); // 팝업 닫기
+              Navigator.pop(context); // 매칭 상세 화면 닫기 → 이전 화면(홈/탐색)으로 복귀
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),

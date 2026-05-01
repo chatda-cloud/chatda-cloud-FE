@@ -24,8 +24,7 @@ class LostItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
+      onTap: () => Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (_) => MatchDetailScreen(
             myItemTitle: '등록된 내 분실물',
@@ -127,8 +126,7 @@ class FoundItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
+      onTap: () => Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (_) => MatchDetailScreen(
             myItemTitle: '등록된 내 분실물',
@@ -212,7 +210,7 @@ class ItemGridCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => MatchDetailScreen(
+        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => MatchDetailScreen(
           myItemTitle: '내 등록 물건',
           counterpartTitle: item['title'],
           similarityScore: (match > 0 ? match : 85) / 100.0,

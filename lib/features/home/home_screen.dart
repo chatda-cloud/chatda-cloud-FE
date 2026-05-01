@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     location: '강남역 2번 출구',
                     time: '10분 전',
                     matchPercent: 100,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchDetailScreen(
+                    onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(
                       myItemTitle: '내 검정색 지갑', counterpartTitle: '습득된 검정색 가죽 지갑', similarityScore: 1.0, myTags: ['지갑', '가죽'], counterpartTags: ['지갑'],
                     ))),
                   ),
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     location: '홍대입구역 9번 출구',
                     time: '1시간 전',
                     matchPercent: 95,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchDetailScreen(
+                    onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(
                       myItemTitle: 'iPhone 15 Pro', counterpartTitle: '스마트폰', similarityScore: 0.95, myTags: ['폰', '애플'], counterpartTags: ['스마트폰'],
                     ))),
                   ),
@@ -87,17 +87,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     location: '신촌역',
                     time: '2시간 전',
                     matchPercent: 80,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchDetailScreen(
+                    onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(
                       myItemTitle: '에어팟', counterpartTitle: '무선 이어폰', similarityScore: 0.8,
                     ))),
                   ),
-                  _buildVerticalMatchCard(title: '파란색 우산', desc: '비슷한 파란색 우산이 서울역 분실물 센터에 보관 중입니다.', location: '서울역', time: '3시간 전', matchPercent: 75, onTap: (){}),
-                  _buildVerticalMatchCard(title: '갈색 크로스백', desc: '색상이 일치하는 가방이 습득되었습니다.', location: '여의도', time: '5시간 전', matchPercent: 60, onTap: (){}),
+                  _buildVerticalMatchCard(title: '파란색 우산', desc: '비슷한 파란색 우산이 서울역 분실물 센터에 보관 중입니다.', location: '서울역', time: '3시간 전', matchPercent: 75, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 파란색 우산', counterpartTitle: '파란색 접이식 우산', similarityScore: 0.75)))),
+                  _buildVerticalMatchCard(title: '갈색 크로스백', desc: '색상이 일치하는 가방이 습득되었습니다.', location: '여의도', time: '5시간 전', matchPercent: 60, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 갈색 크로스백', counterpartTitle: '갈색 가죽 가방', similarityScore: 0.6)))),
                   
                   if (_isExpanded) ...[
-                    _buildVerticalMatchCard(title: '검정 뿔테 안경', desc: '도서관에서 습득된 안경과 특징이 유사합니다.', location: '시립도서관', time: '1일 전', matchPercent: 55, onTap: (){}),
-                    _buildVerticalMatchCard(title: '샤오미 보조배터리', desc: '버스에서 분실된 물품과 동일한 모델입니다.', location: '버스 분실물센터', time: '1일 전', matchPercent: 50, onTap: (){}),
-                    _buildVerticalMatchCard(title: '회색 니트 목도리', desc: '카페에 보관 중인 목도리와 색상이 같습니다.', location: '스타벅스 강남본점', time: '2일 전', matchPercent: 40, onTap: (){}),
+                    _buildVerticalMatchCard(title: '검정 뿔테 안경', desc: '도서관에서 습득된 안경과 특징이 유사합니다.', location: '시립도서관', time: '1일 전', matchPercent: 55, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 검정 뿔테 안경', counterpartTitle: '뿔테 안경', similarityScore: 0.55)))),
+                    _buildVerticalMatchCard(title: '샤오미 보조배터리', desc: '버스에서 분실된 물품과 동일한 모델입니다.', location: '버스 분실물센터', time: '1일 전', matchPercent: 50, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 샤오미 보조배터리', counterpartTitle: '보조배터리 20000mAh', similarityScore: 0.5)))),
+                    _buildVerticalMatchCard(title: '회색 니트 목도리', desc: '카페에 보관 중인 목도리와 색상이 같습니다.', location: '스타벅스 강남본점', time: '2일 전', matchPercent: 40, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 회색 니트 목도리', counterpartTitle: '니트 목도리', similarityScore: 0.4)))),
                   ],
                   
                   // 더보기 / 접기 버튼을 카드 리스트 맨 밑으로 이동
