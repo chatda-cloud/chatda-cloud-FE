@@ -26,75 +26,86 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     final myFoundItems = items['found']!;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('마이페이지', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings_outlined, color: Colors.grey.shade700),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+            },
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
       body: DefaultTabController(
         length: 3,
         child: Column(
           children: [
-            // 상단 테마 컬러 헤더
-            Container(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 20),
-              color: Theme.of(context).primaryColor,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('마이페이지', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                        IconButton(
-                          icon: const Icon(Icons.settings, color: Colors.white),
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-                          },
-                        ),
-                      ],
+            // 프로필 카드
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.person, color: Colors.white, size: 36),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            const Color(0xFF6B8EFF).withOpacity(0.15),
+                            const Color(0xFFA5B4FC).withOpacity(0.15),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(userInfo.name, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                                  const SizedBox(width: 8),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPageEditScreen()));
-                                    },
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(4.0),
-                                      child: Icon(Icons.edit, color: Colors.white, size: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(userInfo.email, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                      ],
+                        border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.3), width: 2),
+                      ),
+                      child: const Icon(Icons.person, color: Color(0xFF2563EB), size: 30),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(userInfo.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                          const SizedBox(height: 3),
+                          Text(userInfo.email, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPageEditScreen()));
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2563EB).withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.edit_outlined, color: Color(0xFF2563EB), size: 18),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             // 탭바
@@ -132,7 +143,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 
   Widget _buildMyLostItemsTab(BuildContext context, List<Map<String, dynamic>> lostItems) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       children: lostItems.map((item) => _buildItemCardWithActions(
         title: item['title'] as String,
         desc: item['desc'] as String,
@@ -140,7 +151,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
         date: item['date'] as String,
         tags: item['tags'] as List<String>,
         type: '분실물',
-        color: Colors.redAccent,
+        color: const Color(0xFFEF4444),
         onEdit: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterLostItemScreen(editItem: item)));
         },
@@ -151,7 +162,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 
   Widget _buildMyFoundItemsTab(BuildContext context, List<Map<String, dynamic>> foundItems) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       children: foundItems.map((item) => _buildItemCardWithActions(
         title: item['title'] as String,
         desc: item['desc'] as String,
@@ -159,7 +170,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
         date: item['date'] as String,
         tags: item['tags'] as List<String>,
         type: '습득물',
-        color: Colors.green,
+        color: const Color(0xFF22C55E),
         onEdit: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterFoundItemScreen(editItem: item)));
         },
@@ -190,36 +201,43 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 
   Widget _buildMyMatchingTab() {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       children: [
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: Color(0xFF2563EB), width: 1.5)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: const Color(0xFF2563EB).withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                      child: const Text('매칭 성공', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 12)),
-                    ),
-                    Text('2026-04-05', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const Text('내 분실물 ↔ 타인의 습득물 매칭', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                Text('분실: 검정색 가죽 지갑', style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
-                Text('습득: 가죽 지갑 (강남역 3번 출구)', style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
-              ],
-            ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xFF2563EB).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                    child: const Text('매칭 성공', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
+                  Text('2026-04-05', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Text('내 분실물 ↔ 타인의 습득물 매칭', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B))),
+              const SizedBox(height: 10),
+              Text('분실: 검정색 가죽 지갑', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+              const SizedBox(height: 4),
+              Text('습득: 가죽 지갑 (강남역 3번 출구)', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+            ],
           ),
         ),
       ],
@@ -237,69 +255,94 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
-    return Card(
-      elevation: 2,
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 8),
-            Text(desc, style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
-            const SizedBox(height: 16),
-            _buildIconText(Icons.location_on_outlined, location),
-            const SizedBox(height: 6),
-            _buildIconText(Icons.calendar_today_outlined, date),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                ...tags.map((tag) => Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(tag, style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
-                    )),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(type, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            const Divider(height: 1),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: onEdit,
-                    icon: const Icon(Icons.edit, size: 18),
-                    label: const Text('수정'),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      backgroundColor: const Color(0xFF2563EB),
-                    ),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1E293B)))),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(type, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(desc, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+          const SizedBox(height: 14),
+          _buildIconText(Icons.location_on_outlined, location),
+          const SizedBox(height: 6),
+          _buildIconText(Icons.calendar_today_outlined, date),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: tags.map((tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Text(tag, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+            )).toList(),
+          ),
+          const SizedBox(height: 16),
+          Divider(height: 1, color: Colors.grey.shade100),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onEdit,
+                  icon: Icon(Icons.edit_outlined, size: 16, color: const Color(0xFF2563EB).withOpacity(0.8)),
+                  label: Text('수정', style: TextStyle(color: const Color(0xFF2563EB).withOpacity(0.9), fontWeight: FontWeight.w600)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: const Color(0xFF2563EB).withOpacity(0.25)),
+                    backgroundColor: const Color(0xFF2563EB).withOpacity(0.04),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline, size: 18),
-                    label: const Text('삭제'),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      backgroundColor: Colors.redAccent,
-                    ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onDelete,
+                  icon: Icon(Icons.delete_outline, size: 16, color: const Color(0xFFEF4444).withOpacity(0.8)),
+                  label: Text('삭제', style: TextStyle(color: const Color(0xFFEF4444).withOpacity(0.9), fontWeight: FontWeight.w600)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: const Color(0xFFEF4444).withOpacity(0.25)),
+                    backgroundColor: const Color(0xFFEF4444).withOpacity(0.04),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -307,9 +350,9 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   Widget _buildIconText(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade500),
+        Icon(icon, size: 15, color: Colors.grey.shade400),
         const SizedBox(width: 8),
-        Text(text, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+        Text(text, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
       ],
     );
   }
