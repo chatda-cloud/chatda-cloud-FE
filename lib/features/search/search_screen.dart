@@ -26,6 +26,7 @@ class _SearchScreenState extends State<SearchScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setSheetState) {
@@ -345,10 +346,18 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildTabButton(int index, String title) {
     final isSelected = _selectedTab == index;
-    Color getSelectedColor() {
-      if (index == 1) return Colors.redAccent;
-      if (index == 2) return Colors.green;
-      return Theme.of(context).primaryColor;
+
+    // 연한 파스텔 배경 + 진한 텍스트 조합
+    Color getSelectedBgColor() {
+      if (index == 1) return const Color(0xFFFFE0E0); // 연한 코랄
+      if (index == 2) return const Color(0xFFD7F5E7); // 연한 민트
+      return const Color(0xFFDCE8FF); // 연한 블루
+    }
+
+    Color getSelectedTextColor() {
+      if (index == 1) return const Color(0xFFE53935); // 진한 레드
+      if (index == 2) return const Color(0xFF059669); // 진한 그린
+      return const Color(0xFF2563EB); // 진한 블루
     }
 
     return Expanded(
@@ -358,15 +367,19 @@ class _SearchScreenState extends State<SearchScreen> {
             _selectedTab = index;
           });
         },
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? getSelectedColor() : Colors.transparent,
+            color: isSelected ? getSelectedBgColor() : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
-            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))] : null,
           ),
           alignment: Alignment.center,
-          child: Text(title, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? Colors.white : Colors.grey.shade600)),
+          child: Text(title, style: TextStyle(
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? getSelectedTextColor() : Colors.grey.shade600,
+          )),
         ),
       ),
     );

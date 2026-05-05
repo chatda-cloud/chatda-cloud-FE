@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined, size: 28),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const NotificationScreen()));
             },
           ),
           const SizedBox(width: 8),
