@@ -285,7 +285,7 @@ class _RegisterLostItemScreenState extends ConsumerState<RegisterLostItemScreen>
                             child: ElevatedButton(
                               onPressed: _addTag,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2563EB),
+                                backgroundColor: const Color(0xFF6B8EFF),
                                 padding: const EdgeInsets.symmetric(horizontal: 20),
                               ),
                               child: const Text('추가'),
@@ -344,7 +344,7 @@ class _RegisterLostItemScreenState extends ConsumerState<RegisterLostItemScreen>
               ElevatedButton(
                 onPressed: _onSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
+                  backgroundColor: const Color(0xFF6B8EFF),
                   padding: const EdgeInsets.symmetric(vertical: 18),
                 ),
                 child: Text(_isEditMode ? '수정하기' : '등록하기', style: const TextStyle(fontSize: 18)),

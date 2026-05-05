@@ -33,7 +33,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
           IconButton(
             icon: Icon(Icons.settings_outlined, color: Colors.grey.shade700),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
             },
           ),
           const SizedBox(width: 4),
@@ -92,7 +92,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPageEditScreen()));
+                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MyPageEditScreen()));
                       },
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
@@ -153,7 +153,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
         type: '분실물',
         color: const Color(0xFFEF4444),
         onEdit: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterLostItemScreen(editItem: item)));
+          Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => RegisterLostItemScreen(editItem: item)));
         },
         onDelete: () => _deleteItem(item, isLost: true),
       )).toList(),
@@ -172,7 +172,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
         type: '습득물',
         color: const Color(0xFF22C55E),
         onEdit: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterFoundItemScreen(editItem: item)));
+          Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => RegisterFoundItemScreen(editItem: item)));
         },
         onDelete: () => _deleteItem(item, isLost: false),
       )).toList(),

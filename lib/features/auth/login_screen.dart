@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          _isSignUpMode ? 'Email Address' : 'Username or Email',
+                          _isSignUpMode ? '이메일 주소' : '이메일',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                            hintText: 'user@example.com',
+                            hintText: '이메일을 입력하세요',
                             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                             filled: true,
                             fillColor: const Color(0xFFF1F5F9), // 연한 회색 배경
@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         const SizedBox(height: 24),
 
                         Text(
-                          'Password',
+                          '비밀번호',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -194,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           controller: _passwordController,
                           obscureText: true,
                           decoration: InputDecoration(
-                            hintText: 'password',
+                            hintText: '비밀번호를 입력하세요',
                             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                             filled: true,
                             fillColor: const Color(0xFFF1F5F9), // 연한 회색 배경
@@ -212,12 +212,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         
                         if (_isSignUpMode) ...[
                           const SizedBox(height: 24),
-                          const Text('Nickname', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          const Text('닉네임', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
-                              hintText: 'Nickname',
+                              hintText: '닉네임을 입력하세요',
                               hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                               filled: true,
                               fillColor: const Color(0xFFF1F5F9),
@@ -230,13 +230,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             validator: (val) => (val == null || val.isEmpty) ? '닉네임을 입력해주세요.' : null,
                           ),
                           const SizedBox(height: 24),
-                          const Text('Phone Number', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          const Text('전화번호', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
                             decoration: InputDecoration(
-                              hintText: 'Phone Number',
+                              hintText: '전화번호를 입력하세요',
                               hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                               filled: true,
                               fillColor: const Color(0xFFF1F5F9),
@@ -250,26 +250,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                         ],
                         
-                        // Remember password (UI 전용)
-                        if (!_isSignUpMode) ...[
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: Checkbox(
-                                  value: false,
-                                  onChanged: (v) {},
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                                  side: BorderSide(color: Colors.grey.shade400),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text('Remember password', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                            ],
-                          ),
-                        ],
+
                         
                         const SizedBox(height: 32),
 
@@ -286,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             ),
                           ),
                           child: Text(
-                            _isSignUpMode ? 'Sign up' : 'Log in',
+                            _isSignUpMode ? '회원가입' : '로그인',
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -295,33 +276,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         
                         // 하단 링크
                         if (!_isSignUpMode) ...[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text('가입하신 이메일로 인증 메일이 발송됩니다.'),
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                    ),
-                                  );
-                                },
-                                child: Text('Find ID or Password', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                              ),
-                              Text('|', style: TextStyle(color: Colors.grey.shade400)),
-                              TextButton(
-                                onPressed: _toggleMode,
-                                child: const Text('Sign up', style: TextStyle(color: Color(0xFF6B8EFF), fontSize: 13, fontWeight: FontWeight.bold)),
-                              ),
-                            ],
+                          Center(
+                            child: TextButton(
+                              onPressed: _toggleMode,
+                              child: const Text('회원가입', style: TextStyle(color: Color(0xFF6B8EFF), fontSize: 13, fontWeight: FontWeight.bold)),
+                            ),
                           ),
                         ] else ...[
                           Center(
                             child: TextButton(
                               onPressed: _toggleMode,
-                              child: const Text('Already have an account? Log in', style: TextStyle(color: Color(0xFF6B8EFF), fontSize: 13, fontWeight: FontWeight.bold)),
+                              child: const Text('이미 계정이 있으신가요? 로그인', style: TextStyle(color: Color(0xFF6B8EFF), fontSize: 13, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ],

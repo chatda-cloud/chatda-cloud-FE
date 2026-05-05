@@ -205,14 +205,14 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
                     const Divider(thickness: 1, color: Colors.black12),
                     const SizedBox(height: 20),
                     
-                    // 태그 매칭 리스트
-                    _buildTagMatchRow('#지갑', '97%'),
+                    // 태그 목록
+                    _buildTagRow('#지갑'),
                     const SizedBox(height: 12),
-                    _buildTagMatchRow('#검정색', '98%'),
+                    _buildTagRow('#검정색'),
                     const SizedBox(height: 12),
-                    _buildTagMatchRow('#강남역', '90%'),
+                    _buildTagRow('#강남역'),
                     const SizedBox(height: 12),
-                    _buildTagMatchRow('#공나도', '85%'),
+                    _buildTagRow('#공나도'),
                   ],
                 ),
               ),
@@ -281,12 +281,17 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
     );
   }
 
-  Widget _buildTagMatchRow(String tag, String percent) {
+  Widget _buildTagRow(String tag) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(tag, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
-        Text(percent, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(tag, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+        ),
       ],
     );
   }

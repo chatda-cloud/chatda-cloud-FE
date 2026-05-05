@@ -348,16 +348,18 @@ class _SearchScreenState extends State<SearchScreen> {
     final isSelected = _selectedTab == index;
 
     // 연한 파스텔 배경 + 진한 텍스트 조합
-    Color getSelectedBgColor() {
+    Color getBgColor() {
+      if (!isSelected) return Colors.transparent;
       if (index == 1) return const Color(0xFFFFE0E0); // 연한 코랄
       if (index == 2) return const Color(0xFFD7F5E7); // 연한 민트
       return const Color(0xFFDCE8FF); // 연한 블루
     }
 
-    Color getSelectedTextColor() {
-      if (index == 1) return const Color(0xFFE53935); // 진한 레드
-      if (index == 2) return const Color(0xFF059669); // 진한 그린
-      return const Color(0xFF2563EB); // 진한 블루
+    Color getTextColor() {
+      if (!isSelected) return Colors.grey.shade500;
+      if (index == 1) return const Color(0xFFE53935);
+      if (index == 2) return const Color(0xFF059669);
+      return const Color(0xFF2563EB);
     }
 
     return Expanded(
@@ -367,19 +369,21 @@ class _SearchScreenState extends State<SearchScreen> {
             _selectedTab = index;
           });
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
+        child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? getSelectedBgColor() : Colors.transparent,
+            color: getBgColor(),
             borderRadius: BorderRadius.circular(6),
           ),
           alignment: Alignment.center,
-          child: Text(title, style: TextStyle(
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? getSelectedTextColor() : Colors.grey.shade600,
-          )),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: getTextColor(),
+              fontSize: 14,
+            ),
+          ),
         ),
       ),
     );

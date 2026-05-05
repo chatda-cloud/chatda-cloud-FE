@@ -146,7 +146,7 @@ class _MyPageEditScreenState extends ConsumerState<MyPageEditScreen> {
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                backgroundColor: const Color(0xFF2563EB),
+                                backgroundColor: const Color(0xFF6B8EFF),
                                 elevation: 0,
                               ),
                               child: const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
