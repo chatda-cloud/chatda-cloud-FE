@@ -41,27 +41,32 @@ class UserInfo {
   }
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
+    // 백엔드 응답이 {"success": true, "data": {...}} 형태인 경우 대응
+    final data = (json.containsKey('data') && json['data'] is Map)
+        ? Map<String, dynamic>.from(json['data'] as Map)
+        : json;
+
     // 백엔드에서 올 수 있는 다양한 이름 필드명 대응
-    final name = json['username'] as String? ?? 
-                 json['name'] as String? ?? 
-                 json['nickname'] as String? ?? 
-                 json['display_name'] as String? ??
-                 '';
-    
+    final name = data['username'] as String? ??
+        data['name'] as String? ??
+        data['nickname'] as String? ??
+        data['display_name'] as String? ??
+        '';
+
     // 프로필 이미지 필드명 대응
-    final profileImageUrl = json['profile_image_url'] as String? ?? 
-                           json['profileImageUrl'] as String? ?? 
-                           json['avatar_url'] as String? ??
-                           json['profile_url'] as String?;
+    final profileImageUrl = data['profile_image_url'] as String? ??
+        data['profileImageUrl'] as String? ??
+        data['avatar_url'] as String? ??
+        data['profile_url'] as String?;
 
     return UserInfo(
-      id: json['id'] as int?,
-      email: json['email'] as String? ?? '',
+      id: data['id'] as int?,
+      email: data['email'] as String? ?? '',
       name: name,
-      phone: json['phone'] as String? ?? '',
+      phone: data['phone'] as String? ?? '',
       profileImageUrl: profileImageUrl,
-      gender: json['gender'] as String?,
-      birthDate: json['birthDate'] as String? ?? json['birth_date'] as String?,
+      gender: data['gender'] as String?,
+      birthDate: data['birthDate'] as String? ?? data['birth_date'] as String?,
     );
   }
 }
