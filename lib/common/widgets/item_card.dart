@@ -8,6 +8,7 @@ class LostItemCard extends StatelessWidget {
   final String date;
   final String time;
   final List<String> tags;
+  final String? imageUrl;
   final int matchPercent;
 
   const LostItemCard({
@@ -18,6 +19,7 @@ class LostItemCard extends StatelessWidget {
     required this.date,
     required this.time,
     required this.tags,
+    this.imageUrl,
     this.matchPercent = 0,
   });
 
@@ -48,8 +50,9 @@ class LostItemCard extends StatelessWidget {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                alignment: Alignment.center,
-                child: Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 32),
+                child: imageUrl != null && imageUrl!.isNotEmpty
+                    ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(imageUrl!, fit: BoxFit.cover, width: 90, height: 100))
+                    : Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 32),
               ),
               const SizedBox(width: 16),
               // 내용 영역
@@ -112,6 +115,7 @@ class FoundItemCard extends StatelessWidget {
   final String date;
   final String time;
   final List<String> tags;
+  final String? imageUrl;
 
   const FoundItemCard({
     super.key,
@@ -121,6 +125,7 @@ class FoundItemCard extends StatelessWidget {
     required this.date,
     required this.time,
     required this.tags,
+    this.imageUrl,
   });
 
   @override
@@ -150,8 +155,9 @@ class FoundItemCard extends StatelessWidget {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                alignment: Alignment.center,
-                child: Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 32),
+                child: imageUrl != null && imageUrl!.isNotEmpty
+                    ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(imageUrl!, fit: BoxFit.cover, width: 90, height: 100))
+                    : Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -213,7 +219,7 @@ class ItemGridCard extends StatelessWidget {
         Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => MatchDetailScreen(
           myItemTitle: '내 등록 물건',
           counterpartTitle: item['title'],
-          similarityScore: (match > 0 ? match : 85) / 100.0,
+          similarityScore: (match > 0 ? match : 0) / 100.0,
         )));
       },
       child: Card(
@@ -230,7 +236,10 @@ class ItemGridCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 40),
+                    if (item['imageUrl'] != null && (item['imageUrl'] as String).isNotEmpty)
+                      Image.network(item['imageUrl'], fit: BoxFit.cover)
+                    else
+                      Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 40),
                     // 사진 공간에 들어갈 내용이 있을 경우 여기에 Image.network 추가
                     Positioned(
                       top: 8,
@@ -283,8 +292,8 @@ class ItemGridCard extends StatelessWidget {
                       children: [
                         const Icon(Icons.location_on_outlined, size: 12, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Expanded(child: Text(item['loc'], style: TextStyle(color: Colors.grey.shade600, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        Text(item['time'] ?? '', style: TextStyle(color: Colors.grey.shade400, fontSize: 9)),
+                        Expanded(child: Text(item['location'] ?? item['loc'] ?? '', style: TextStyle(color: Colors.grey.shade600, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Text(item['date'] ?? item['time'] ?? '', style: TextStyle(color: Colors.grey.shade400, fontSize: 9)),
                       ],
                     ),
                   ],
