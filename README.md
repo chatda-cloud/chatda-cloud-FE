@@ -40,11 +40,60 @@
 - **사용자 마이페이지 (MY)**
   - 밝은 테마의 전역 AppBar 및 프로필 카드 디자인을 통한 **앱 전체 디자인 언어 통합**.
   - 내 정보(닉네임, 이메일, 전화번호) 수정 기능.
-  - 탭 구성: **분실물 / 습득물 / 매칭** 3탭으로 내 물건 통합 관리 및 직관적인 상태 뱃지 제공.
-  - **설정 화면** (정보 수정, 알림 설정, 로그아웃, 회원 탈퇴).
-- **인증 (Auth)**
-  - 로그인 및 회원가입 통합 화면.
-  - 회원가입 완료 시 **자동 로그인** 및 홈 화면 직행.
+
+## 🚀 주요 기능 (Current Status)
+
+### 1. 인증 및 회원 관리
+- **회원가입/로그인**: 이메일 기반 인증 및 자동 로그인 기능.
+- **프로필 관리**: 닉네임 변경, 프로필 이미지 업로드(S3 연동), 비밀번호 재설정 메일 발송.
+- **보안**: JWT 기반 인증 및 토큰 재발급(Refresh Token) 처리.
+
+### 2. 아이템 등록 및 관리 (분실물/습득물)
+- **스마트 등록**: 아이템 정보 입력 시 실시간 이미지 미리보기 제공.
+- **AI 태깅 (AWS 연동)**: 이미지 업로드 시 AWS Rekognition 및 Gemini를 통한 자동 카테고리/특징 추출.
+- **내역 관리**: 내가 등록한 분실물/습득물 목록 확인 및 수정/삭제 기능.
+
+### 3. 탐색 및 매칭
+- **탐색 (Explore)**: 등록된 아이템 목록 확인 (현재 내 아이템 중심 연동).
+- **스마트 매칭**: 분실물과 습득물 간의 유사도 기반 자동 매칭 추천 (0.7 이상).
+- **상세 정보**: 매칭된 아이템의 상세 정보 및 유사도 점수 확인.
+
+## 🛠 기술 스택
+- **Framework**: Flutter (Dart)
+- **State Management**: Riverpod
+- **Network**: Dio (HTTP Client)
+- **Storage**: Flutter Secure Storage (Tokens)
+- **Image**: Image Picker, Cached Network Image
+
+## ⚙️ 시작하기 (Getting Started)
+
+### 1. 사전 요구 사항 (Prerequisites)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x 이상 권장)
+- Android Studio / VS Code (Flutter 플러그인 설치)
+- 실행할 에뮬레이터 또는 실제 디바이스 (Android/iOS)
+
+### 2. 환경 변수 설정 (Configuration)
+프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 아래의 필수 환경 변수들을 설정해야 합니다. (이 값들이 없으면 API 연동이 되지 않습니다.)
+
+```ini
+# .env 파일 예시
+BASE_URL=https://your-api-server.com
+LAMBDA_URL=https://your-lambda-endpoint.com
+```
+
+### 3. 의존성 설치 및 실행
+아래 명령어를 순서대로 실행하여 프로젝트를 구동합니다.
+
+```bash
+# 1. 패키지 다운로드
+flutter pub get
+
+# 2. 앱 실행 (환경 변수 파일 포함 필수)
+flutter run --dart-define-from-file=.env
+```
+
+> [!TIP]
+> VS Code를 사용하신다면 `.vscode/launch.json` 설정에 `--dart-define-from-file=.env`를 추가하여 F5 키만으로 편하게 실행할 수 있습니다.
 
 ---
 
