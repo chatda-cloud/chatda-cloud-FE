@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../services/user_service.dart';
 import '../match/match_detail_screen.dart';
 import '../notification/notification_screen.dart';
-import '../main/main_screen.dart';
-import '../search/search_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final VoidCallback onNavigateToRegisterLost;
   final VoidCallback onNavigateToRegisterFound;
 
@@ -15,11 +15,34 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isExpanded = false;
+  List<Map<String, dynamic>> _matches = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMatches();
+  }
+
+  Future<void> _loadMatches() async {
+    try {
+      final userService = UserService();
+      final matchData = await userService.getMyMatches();
+      if (mounted) {
+        setState(() {
+          _matches = matchData.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,78 +81,84 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 120), // 하단 바에 컨텐츠가 가리지 않도록 넉넉한 하단 여백 추가
-                children: [
-                  _buildVerticalMatchCard(
-                    title: '검정색 가죽 지갑',
-                    desc: '습득된 검정색 가죽 지갑과 매우 유사합니다.',
-                    location: '강남역 2번 출구',
-                    time: '10분 전',
-                    matchPercent: 100,
-                    onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(
-                      myItemTitle: '내 검정색 지갑', counterpartTitle: '습득된 검정색 가죽 지갑', similarityScore: 1.0, myTags: ['지갑', '가죽'], counterpartTags: ['지갑'],
-                    ))),
-                  ),
-                  _buildVerticalMatchCard(
-                    title: 'iPhone 15 Pro',
-                    desc: '등록하신 폰 정보와 일치하는 습득물이 있습니다.',
-                    location: '홍대입구역 9번 출구',
-                    time: '1시간 전',
-                    matchPercent: 95,
-                    onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(
-                      myItemTitle: 'iPhone 15 Pro', counterpartTitle: '스마트폰', similarityScore: 0.95, myTags: ['폰', '애플'], counterpartTags: ['스마트폰'],
-                    ))),
-                  ),
-                  _buildVerticalMatchCard(
-                    title: '에어팟 3세대',
-                    desc: '신촌역에서 습득된 무선 이어폰과 유사합니다.',
-                    location: '신촌역',
-                    time: '2시간 전',
-                    matchPercent: 80,
-                    onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(
-                      myItemTitle: '에어팟', counterpartTitle: '무선 이어폰', similarityScore: 0.8,
-                    ))),
-                  ),
-                  _buildVerticalMatchCard(title: '파란색 우산', desc: '비슷한 파란색 우산이 서울역 분실물 센터에 보관 중입니다.', location: '서울역', time: '3시간 전', matchPercent: 75, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 파란색 우산', counterpartTitle: '파란색 접이식 우산', similarityScore: 0.75)))),
-                  _buildVerticalMatchCard(title: '갈색 크로스백', desc: '색상이 일치하는 가방이 습득되었습니다.', location: '여의도', time: '5시간 전', matchPercent: 60, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 갈색 크로스백', counterpartTitle: '갈색 가죽 가방', similarityScore: 0.6)))),
-                  
-                  if (_isExpanded) ...[
-                    _buildVerticalMatchCard(title: '검정 뿔테 안경', desc: '도서관에서 습득된 안경과 특징이 유사합니다.', location: '시립도서관', time: '1일 전', matchPercent: 55, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 검정 뿔테 안경', counterpartTitle: '뿔테 안경', similarityScore: 0.55)))),
-                    _buildVerticalMatchCard(title: '샤오미 보조배터리', desc: '버스에서 분실된 물품과 동일한 모델입니다.', location: '버스 분실물센터', time: '1일 전', matchPercent: 50, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 샤오미 보조배터리', counterpartTitle: '보조배터리 20000mAh', similarityScore: 0.5)))),
-                    _buildVerticalMatchCard(title: '회색 니트 목도리', desc: '카페에 보관 중인 목도리와 색상이 같습니다.', location: '스타벅스 강남본점', time: '2일 전', matchPercent: 40, onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const MatchDetailScreen(myItemTitle: '내 회색 니트 목도리', counterpartTitle: '니트 목도리', similarityScore: 0.4)))),
-                  ],
-                  
-                  // 더보기 / 접기 버튼을 카드 리스트 맨 밑으로 이동
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 24.0),
-                    child: OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(_isExpanded ? '접기' : '더보기', style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold)),
-                          Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey.shade700),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _matches.isEmpty
+                      ? const Center(child: Text('추천되는 매칭이 없습니다.', style: TextStyle(color: Colors.grey)))
+                      : ListView(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
+                          children: [
+                            ..._buildMatchCards(),
+                            if (_matches.length > 5) // 5개 이상일 경우 더보기 제공 (필요시)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0, bottom: 24.0),
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isExpanded = !_isExpanded;
+                                    });
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    side: BorderSide(color: Colors.grey.shade300),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(_isExpanded ? '접기' : '더보기', style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold)),
+                                      Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey.shade700),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildMatchCards() {
+    // 0.7 이상 필터링 및 내림차순 정렬
+    final filtered = _matches.where((m) {
+      final score = (m['similarity_score'] as num?)?.toDouble() ?? 0.0;
+      return score >= 0.7;
+    }).toList();
+
+    filtered.sort((a, b) {
+      final sa = (a['similarity_score'] as num?)?.toDouble() ?? 0.0;
+      final sb = (b['similarity_score'] as num?)?.toDouble() ?? 0.0;
+      return sb.compareTo(sa);
+    });
+
+    final displayList = _isExpanded ? filtered : filtered.take(5).toList();
+
+    return displayList.map((match) {
+      final matchId = match['id'] as int? ?? 0;
+      final score = (match['similarity_score'] as num?)?.toDouble() ?? 0.0;
+      final percent = (score * 100).toInt();
+      final myTitle = match['lost_item_title'] ?? '내 분실물';
+      final cpTitle = match['found_item_title'] ?? '유사 습득물';
+      final isConfirmed = match['is_confirmed'] == true;
+
+      return _buildVerticalMatchCard(
+        title: cpTitle,
+        desc: '등록하신 정보와 일치하는 습득물이 있습니다.',
+        location: match['found_item_location'] ?? '알 수 없음',
+        time: match['created_at'] != null ? match['created_at'].toString().split('T').first : '최근',
+        matchPercent: percent,
+        onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => MatchDetailScreen(
+          matchId: matchId,
+          isAlreadyMatched: isConfirmed,
+          myItemTitle: myTitle,
+          counterpartTitle: cpTitle,
+          similarityScore: score,
+        ))),
+      );
+    }).toList();
   }
 
   Widget _buildVerticalMatchCard({

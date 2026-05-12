@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/items_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../services/user_service.dart';
 import '../../widgets/chatda_dialog.dart';
 import 'mypage_edit_screen.dart';
 import 'settings_screen.dart';
 import '../auth/login_screen.dart';
 import '../register/register_lost_item_screen.dart';
 import '../register/register_found_item_screen.dart';
+import '../match/match_detail_screen.dart';
 
 class MyPageScreen extends ConsumerStatefulWidget {
   const MyPageScreen({super.key});
@@ -17,13 +19,52 @@ class MyPageScreen extends ConsumerStatefulWidget {
 }
 
 class _MyPageScreenState extends ConsumerState<MyPageScreen> {
+  List<Map<String, dynamic>> _matches = [];
+  bool _isLoadingMatches = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // API에서 내 아이템 및 매칭 목록 로드
+    Future.microtask(() {
+      ref.read(itemsProvider.notifier).loadMyItems();
+      _loadMatches();
+    });
+  }
+
+  Future<void> _loadMatches() async {
+    try {
+      final userService = UserService();
+      final matchData = await userService.getMyMatches();
+      
+      final filtered = matchData.map((e) => Map<String, dynamic>.from(e as Map)).where((m) {
+        final score = (m['similarity_score'] as num?)?.toDouble() ?? 0.0;
+        return score >= 0.7;
+      }).toList();
+
+      filtered.sort((a, b) {
+        final sa = (a['similarity_score'] as num?)?.toDouble() ?? 0.0;
+        final sb = (b['similarity_score'] as num?)?.toDouble() ?? 0.0;
+        return sb.compareTo(sa);
+      });
+
+      if (mounted) {
+        setState(() {
+          _matches = filtered;
+          _isLoadingMatches = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingMatches = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final userInfo = ref.watch(userProvider);
     final items = ref.watch(itemsProvider);
-    final myLostItems = items['lost']!;
-    final myFoundItems = items['found']!;
+    final myLostItems = items['lost'] ?? [];
+    final myFoundItems = items['found'] ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -77,14 +118,19 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                         ),
                         border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.3), width: 2),
                       ),
-                      child: const Icon(Icons.person, color: Color(0xFF2563EB), size: 30),
+                      child: userInfo.profileImageUrl != null && userInfo.profileImageUrl!.isNotEmpty
+                          ? ClipOval(child: Image.network(userInfo.profileImageUrl!, fit: BoxFit.cover))
+                          : const Icon(Icons.person, color: Color(0xFF2563EB), size: 30),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(userInfo.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                          Text(
+                            '${userInfo.name.isEmpty ? '사용자' : userInfo.name}님', 
+                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))
+                          ),
                           const SizedBox(height: 3),
                           Text(userInfo.email, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
                         ],
@@ -119,7 +165,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                 tabs: [
                   Tab(text: '분실물 (${myLostItems.length})'),
                   Tab(text: '습득물 (${myFoundItems.length})'),
-                  const Tab(text: '매칭 (1)'),
+                  Tab(text: '매칭 (${_matches.length})'),
                 ],
               ),
             ),
@@ -145,11 +191,11 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       children: lostItems.map((item) => _buildItemCardWithActions(
-        title: item['title'] as String,
-        desc: item['desc'] as String,
-        location: item['location'] as String,
-        date: item['date'] as String,
-        tags: item['tags'] as List<String>,
+        title: (item['title'] ?? item['item_name'] ?? '') as String,
+        desc: (item['desc'] ?? item['raw_text'] ?? '') as String,
+        location: (item['location'] ?? '') as String,
+        date: (item['date'] ?? '') as String,
+        tags: (item['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
         type: '분실물',
         color: const Color(0xFFEF4444),
         onEdit: () {
@@ -164,11 +210,11 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       children: foundItems.map((item) => _buildItemCardWithActions(
-        title: item['title'] as String,
-        desc: item['desc'] as String,
-        location: item['location'] as String,
-        date: item['date'] as String,
-        tags: item['tags'] as List<String>,
+        title: (item['title'] ?? item['item_name'] ?? '') as String,
+        desc: (item['desc'] ?? item['raw_text'] ?? '') as String,
+        location: (item['location'] ?? '') as String,
+        date: (item['date'] ?? '') as String,
+        tags: (item['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
         type: '습득물',
         color: const Color(0xFF22C55E),
         onEdit: () {
@@ -200,47 +246,72 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   }
 
   Widget _buildMyMatchingTab() {
+    if (_isLoadingMatches) return const Center(child: CircularProgressIndicator());
+    if (_matches.isEmpty) return const Center(child: Text('매칭 내역이 없습니다.', style: TextStyle(color: Colors.grey)));
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.2)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+      children: _matches.map((match) {
+        final matchId = match['id'] as int? ?? 0;
+        final isConfirmed = match['is_confirmed'] == true;
+        final myTitle = match['lost_item_title'] ?? '내 분실물';
+        final cpTitle = match['found_item_title'] ?? '유사 습득물';
+        final score = (match['similarity_score'] as num?)?.toDouble() ?? 0.0;
+        final percent = (score * 100).toInt();
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => MatchDetailScreen(
+              matchId: matchId,
+              isAlreadyMatched: isConfirmed,
+              myItemTitle: myTitle,
+              counterpartTitle: cpTitle,
+              similarityScore: score,
+            )));
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.2)),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2)),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isConfirmed ? const Color(0xFF2563EB).withOpacity(0.08) : Colors.orange.shade50, 
+                        borderRadius: BorderRadius.circular(12)
+                      ),
+                      child: Text(
+                        isConfirmed ? '매칭 완료' : '$percent% 유사', 
+                        style: TextStyle(
+                          color: isConfirmed ? const Color(0xFF2563EB) : Colors.orange.shade800, 
+                          fontWeight: FontWeight.bold, fontSize: 12
+                        )
+                      ),
+                    ),
+                    Text(match['created_at'] != null ? match['created_at'].toString().split('T').first : '최근', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text('$myTitle ↔ $cpTitle 매칭', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B))),
+                const SizedBox(height: 10),
+                Text('장소: ${match['found_item_location'] ?? '알 수 없음'}', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xFF2563EB).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
-                    child: const Text('매칭 성공', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                  Text('2026-04-05', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
-                ],
-              ),
-              const SizedBox(height: 14),
-              const Text('내 분실물 ↔ 타인의 습득물 매칭', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B))),
-              const SizedBox(height: 10),
-              Text('분실: 검정색 가죽 지갑', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-              const SizedBox(height: 4),
-              Text('습득: 가죽 지갑 (강남역 3번 출구)', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-            ],
-          ),
-        ),
-      ],
+        );
+      }).toList(),
     );
   }
 
