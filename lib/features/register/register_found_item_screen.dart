@@ -1,6 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../providers/items_provider.dart';
+import '../../services/upload_service.dart';
 import '../../widgets/chatda_dialog.dart';
 
 class RegisterFoundItemScreen extends ConsumerStatefulWidget {
@@ -22,8 +25,14 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
   final _locationController = TextEditingController();
   final _dateController = TextEditingController(text: '2026년 04월 05일');
   DateTime? _selectedDate;
-  bool _showManualTagInput = false; // 연필 아이콘 토글 상태
-  bool _hasUploadedImage = false; // 사진 업로드 여부
+  bool _showManualTagInput = false;
+  bool _hasUploadedImage = false;
+  bool _isUploading = false;
+  bool _isSubmitting = false;
+  Uint8List? _imageBytes;
+  String? _imageFileName;
+  final UploadService _uploadService = UploadService();
+  final ImagePicker _imagePicker = ImagePicker();
 
   bool get _isEditMode => widget.editItem != null;
 
@@ -66,13 +75,25 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
     }
   }
 
-  /// 사진 업로드 후 AI 태그 시뮬레이션
-  void _simulateAITags() {
-    setState(() {
-      _hasUploadedImage = true;
-      _aiTags.clear();
-      _aiTags.addAll(['지갑', '갈색', '명품']); // AI 분석 결과 시뮬레이션
-    });
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picked = await _imagePicker.pickImage(source: source, maxWidth: 1920, imageQuality: 85);
+      if (picked == null) return;
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _imageBytes = bytes;
+        _imageFileName = picked.name;
+        _hasUploadedImage = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ChatdaDialog.showSuccess(
+        context: context,
+        title: '오류',
+        message: '이미지를 선택할 수 없습니다.',
+        buttonText: '확인',
+      );
+    }
   }
 
   void _showImagePickerModal() {
@@ -88,18 +109,16 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('카메라로 촬영하기'),
                 onTap: () {
-                  // TODO: image_picker 연동
                   Navigator.pop(context);
-                  _simulateAITags();
+                  _pickImage(ImageSource.camera);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library),
                 title: const Text('갤러리에서 선택하기'),
                 onTap: () {
-                  // TODO: image_picker 연동
                   Navigator.pop(context);
-                  _simulateAITags();
+                  _pickImage(ImageSource.gallery);
                 },
               ),
             ],
@@ -117,31 +136,92 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
     );
   }
 
-  void _onSubmit() {
+  Future<void> _onSubmit() async {
     if (_titleController.text.trim().isEmpty) return;
+    if (_isSubmitting) return;
 
-    final allTags = [..._aiTags, ..._manualTags];
+    setState(() => _isSubmitting = true);
 
-    if (_isEditMode) {
-      ref.read(itemsProvider.notifier).updateFoundItem(
-        widget.editItem!['id'] as int,
-        {
+    try {
+      final allTags = [..._aiTags, ..._manualTags];
+      final dateStr = _selectedDate?.toIso8601String() ?? DateTime.now().toIso8601String();
+
+      if (_isEditMode) {
+        final success = await ref.read(itemsProvider.notifier).updateFoundItem(
+          widget.editItem!['id'] as int,
+          {
+            'title': _titleController.text.trim(),
+            'desc': _descController.text.trim(),
+            'location': _locationController.text.trim().isEmpty ? '알 수 없음' : _locationController.text.trim(),
+            'tags': allTags.isEmpty ? ['습득물'] : List<String>.from(allTags),
+          },
+        );
+        if (success) {
+          _showSuccessDialog('습득물 정보가 수정되었습니다.');
+        } else {
+          throw Exception('Update failed');
+        }
+      } else {
+        final itemId = await ref.read(itemsProvider.notifier).addFoundItem({
           'title': _titleController.text.trim(),
+          'item_name': _titleController.text.trim(),
           'desc': _descController.text.trim(),
+          'raw_text': _descController.text.trim(),
           'location': _locationController.text.trim().isEmpty ? '알 수 없음' : _locationController.text.trim(),
+          'date': _dateController.text,
+          'foundDate': dateStr,
           'tags': allTags.isEmpty ? ['습득물'] : List<String>.from(allTags),
-        },
+        });
+
+        if (itemId != null) {
+          bool aiSucceeded = false;
+          String? aiErrorMessage;
+          if (_imageBytes != null && _imageFileName != null) {
+            setState(() => _isUploading = true);
+            try {
+              final tagResult = await _uploadService.uploadImageAndTag(
+                itemId: itemId,
+                filename: _imageFileName!,
+                imageBytes: _imageBytes!,
+              );
+              final features = tagResult['features'] as List? ?? [];
+              final category = tagResult['category'] as String?;
+              setState(() {
+                _aiTags.clear();
+                if (category != null && category.isNotEmpty) _aiTags.add(category);
+                _aiTags.addAll(features.map((e) => e.toString()));
+                _isUploading = false;
+              });
+              aiSucceeded = _aiTags.isNotEmpty;
+              if (!aiSucceeded) {
+                aiErrorMessage = 'AI 분석 결과가 비어있습니다 (시간 초과 가능)';
+              }
+            } catch (e) {
+              setState(() => _isUploading = false);
+              aiErrorMessage = e.toString();
+            }
+          }
+
+          final message = (_imageBytes == null)
+              ? '습득물이 등록되었습니다.'
+              : aiSucceeded
+                  ? '습득물이 등록되고 AI 분석이 완료되었습니다.'
+                  : '습득물은 등록되었으나 AI 분석에 실패했습니다.\n($aiErrorMessage)';
+          _showSuccessDialog(message);
+        } else {
+          throw Exception('등록 실패');
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ChatdaDialog.showSuccess(
+        context: context,
+        title: '오류',
+        message: '등록에 실패했습니다. 다시 시도해주세요.',
+        buttonText: '확인',
       );
-      _showSuccessDialog('습득물 정보가 수정되었습니다.');
-    } else {
-      ref.read(itemsProvider.notifier).addFoundItem({
-        'title': _titleController.text.trim(),
-        'desc': _descController.text.trim(),
-        'location': _locationController.text.trim().isEmpty ? '알 수 없음' : _locationController.text.trim(),
-        'date': _dateController.text,
-        'tags': allTags.isEmpty ? ['습득물'] : List<String>.from(allTags),
-      });
-      _showSuccessDialog('습득물이 등록되었습니다.');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -167,16 +247,26 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
                     color: _hasUploadedImage ? const Color(0xFFE8F5E9) : const Color(0xFFEEEEEE),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: _hasUploadedImage
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle_outline, size: 48, color: Colors.green.shade400),
-                          const SizedBox(height: 12),
-                          Text('사진 업로드 완료', style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 16)),
-                          const SizedBox(height: 4),
-                          Text('탭하여 다시 선택', style: TextStyle(color: Colors.green.shade400, fontSize: 13)),
-                        ],
+                  child: _hasUploadedImage && _imageBytes != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.memory(_imageBytes!, fit: BoxFit.cover),
+                            Container(color: Colors.black.withOpacity(0.2)),
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.check_circle, size: 40, color: Colors.white),
+                                  const SizedBox(height: 8),
+                                  const Text('변경하려면 탭하세요', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -236,7 +326,11 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(
-                          _hasUploadedImage ? 'AI 분석 중...' : '사진을 업로드하면 AI가 자동으로 태그를 추천합니다.',
+                          _isUploading
+                              ? 'AI 분석 중...'
+                              : _hasUploadedImage
+                                  ? '등록 후 AI가 사진을 분석하여 태그를 추천합니다.'
+                                  : '사진을 업로드하면 AI가 자동으로 태그를 추천합니다.',
                           style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                         ),
                       ),
@@ -360,13 +454,43 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
               ),
               const SizedBox(height: 40),
 
+              if (_isUploading) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F4FF),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF6B8EFF).withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6B8EFF))),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('AI가 사진을 분석하고 있습니다...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2563EB))),
+                            const SizedBox(height: 2),
+                            Text('잠시만 기다려주세요', style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               ElevatedButton(
-                onPressed: _onSubmit,
+                onPressed: (_isSubmitting || _isUploading) ? null : _onSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B8EFF),
+                  disabledBackgroundColor: const Color(0xFF6B8EFF).withOpacity(0.5),
                   padding: const EdgeInsets.symmetric(vertical: 18),
                 ),
-                child: Text(_isEditMode ? '수정하기' : '등록하기', style: const TextStyle(fontSize: 18)),
+                child: _isSubmitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : Text(_isEditMode ? '수정하기' : '등록하기', style: const TextStyle(fontSize: 18)),
               ),
               const SizedBox(height: 24),
             ],
