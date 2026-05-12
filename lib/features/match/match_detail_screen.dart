@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../widgets/chatda_dialog.dart';
+import '../../services/match_service.dart';
 
 class MatchDetailScreen extends StatefulWidget {
+  final int matchId;
+  final bool isAlreadyMatched;
   final String myItemTitle;
   final String counterpartTitle;
   final double similarityScore;
@@ -10,6 +13,8 @@ class MatchDetailScreen extends StatefulWidget {
 
   const MatchDetailScreen({
     super.key,
+    this.matchId = 0,
+    this.isAlreadyMatched = false,
     required this.myItemTitle,
     required this.counterpartTitle,
     required this.similarityScore,
@@ -22,9 +27,41 @@ class MatchDetailScreen extends StatefulWidget {
 }
 
 class _MatchDetailScreenState extends State<MatchDetailScreen> {
-  bool _isMatched = false;
+  late bool _isMatched;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isMatched = widget.isAlreadyMatched;
+  }
+
+  Future<void> _handleConfirmMatch() async {
+    if (widget.matchId == 0) {
+      _showMatchedDialog(); // mock fallback
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      final service = MatchService();
+      await service.confirmMatch(widget.matchId, isConfirmed: true);
+      _showMatchedDialog();
+    } catch (e) {
+      if (mounted) {
+        ChatdaDialog.showSuccess(context: context, title: '오류', message: '매칭 확인에 실패했습니다.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   void _showMatchedDialog() {
+    setState(() {
+      _isMatched = true;
+    });
+
     ChatdaDialog.showInfo(
       context: context,
       child: Column(
@@ -220,7 +257,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
 
               // 하단 버튼
               ElevatedButton(
-                onPressed: _isMatched ? null : _showMatchedDialog,
+                onPressed: (_isMatched || _isLoading) ? null : _handleConfirmMatch,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF9CA3AF), // 둥글고 넓은 회색빛 버튼
                   disabledBackgroundColor: Colors.grey.shade300,
@@ -228,10 +265,12 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   elevation: 0,
                 ),
-                child: Text(
-                  _isMatched ? '매칭 완료됨' : '네, 제 물건이 맞습니다',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
+                child: _isLoading 
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : Text(
+                      _isMatched ? '매칭 완료됨' : '네, 제 물건이 맞습니다',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
               ),
               if (!_isMatched) ...[
                 const SizedBox(height: 12),
