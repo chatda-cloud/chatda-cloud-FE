@@ -34,7 +34,7 @@ jobs:
         continue-on-error: true  # 분석 실패해도 빌드는 계속 진행
 
       - name: 🏗️ Build Debug APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} --dart-define=LAMBDA_BASE_URL=${{ secrets.LAMBDA_BASE_URL }}
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
