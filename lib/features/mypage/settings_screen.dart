@@ -4,6 +4,7 @@ import '../auth/login_screen.dart';
 import 'notification_settings_screen.dart';
 import 'mypage_edit_screen.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/chatda_dialog.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -35,10 +36,15 @@ class SettingsScreen extends ConsumerWidget {
                         color: Colors.blue.shade100,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.person, size: 50, color: Color(0xFF2563EB)),
+                      child: userInfo.profileImageUrl != null && userInfo.profileImageUrl!.isNotEmpty
+                          ? ClipOval(child: Image.network(userInfo.profileImageUrl!, fit: BoxFit.cover))
+                          : const Icon(Icons.person, size: 50, color: Color(0xFF2563EB)),
                     ),
                     const SizedBox(height: 16),
-                    Text('${userInfo.name}님', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      '${userInfo.name.isEmpty ? '사용자' : userInfo.name}님', 
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                    ),
                   ],
                 ),
               ),
@@ -72,7 +78,9 @@ class SettingsScreen extends ConsumerWidget {
                     _buildDivider(),
                     _buildSettingsTile(
                       title: '로그아웃',
-                      onTap: () {
+                      onTap: () async {
+                        await ref.read(authProvider.notifier).logout();
+                        if (!context.mounted) return;
                         Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (_) => const LoginScreen()),
                           (route) => false,
