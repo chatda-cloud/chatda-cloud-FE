@@ -1,37 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notification_provider.dart';
+import '../match/match_detail_screen.dart';
 
-class NotificationScreen extends StatefulWidget {
+class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
-  final List<Map<String, String>> _notifications = [
-    {
-      'id': '1',
-      'title': '[스마트 매칭] 새로운 유사 항목 발견!',
-      'body': '잃어버린 "검정색 가죽 지갑"과 일치할 가능성이 높은 습득물이 등록되었습니다. 지금 확인해보세요.',
-      'time': '방금 전',
-    },
-    {
-      'id': '2',
-      'title': '회원가입을 환영합니다.',
-      'body': 'Chatda 서비스에 가입해 주셔서 감사합니다.',
-      'time': '1일 전',
-    }
-  ];
+class _NotificationScreenState extends ConsumerState<NotificationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(notificationProvider.notifier).loadNotifications());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final notifications = ref.watch(notificationProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('알림', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
         centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.read(notificationProvider.notifier).loadNotifications(),
+          ),
+        ],
       ),
       body: SafeArea(
-        child: _notifications.isEmpty 
+        child: notifications.isEmpty 
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -50,12 +52,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
               ),
             )
           : ListView.separated(
-              itemCount: _notifications.length,
+              itemCount: notifications.length,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final noti = _notifications[index];
+                final noti = notifications[index];
                 return Dismissible(
-                  key: Key(noti['id']!),
+                  key: Key(noti.id),
                   background: Container(
                     color: Colors.redAccent,
                     alignment: Alignment.centerRight,
@@ -64,24 +66,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ),
                   direction: DismissDirection.endToStart,
                   onDismissed: (direction) {
-                    setState(() {
-                      _notifications.removeAt(index);
-                    });
+                    ref.read(notificationProvider.notifier).removeNotification(noti.id);
                   },
                   child: ListTile(
+                    onTap: () {
+                      if (noti.data != null) {
+                        final m = noti.data!;
+                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => MatchDetailScreen(
+                          matchId: m['id'] as int? ?? 0,
+                          isAlreadyMatched: m['is_confirmed'] == true,
+                          myItemTitle: m['lost_item_title'] ?? '내 분실물',
+                          counterpartTitle: m['found_item_title'] ?? '유사 습득물',
+                          similarityScore: (m['similarity_score'] as num?)?.toDouble() ?? 0.0,
+                        )));
+                      }
+                    },
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     leading: CircleAvatar(
                       backgroundColor: Colors.blue.shade50,
                       child: const Icon(Icons.notifications_active, color: Color(0xFF2563EB), size: 20),
                     ),
-                    title: Text(noti['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    title: Text(noti.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 6),
-                        Text(noti['body']!, style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.3)),
+                        Text(noti.body, style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.3)),
                         const SizedBox(height: 6),
-                        Text(noti['time']!, style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                        Text(noti.time, style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
                       ],
                     ),
                   ),
