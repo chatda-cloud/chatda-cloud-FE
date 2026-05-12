@@ -46,3 +46,4 @@ app.*.map.json
 
 # Environment variables (contains API URLs - must not be committed)
 .env
+android/build/
