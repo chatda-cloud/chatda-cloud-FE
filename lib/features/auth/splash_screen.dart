@@ -1,16 +1,21 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/user_provider.dart';
+import '../../providers/items_provider.dart';
+import '../main/main_screen.dart';
 import 'login_screen.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProviderStateMixin {
   late AnimationController _mainController;
   late AnimationController _rippleController;
 
@@ -54,20 +59,46 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     _mainController.forward();
 
-    // 3초 후 로그인 화면으로 전환
-    Timer(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 800),
-          ),
-        );
-      }
-    });
+    // 자동 로그인 시도 후 화면 전환
+    _checkAutoLogin();
+  }
+
+  Future<void> _checkAutoLogin() async {
+    // 애니메이션이 충분히 보이도록 최소 2.5초 대기
+    final autoLoginFuture = ref.read(authProvider.notifier).tryAutoLogin();
+    final delayFuture = Future.delayed(const Duration(milliseconds: 2500));
+
+    final results = await Future.wait([autoLoginFuture, delayFuture]);
+    final isLoggedIn = results[0] as bool;
+
+    if (!mounted) return;
+
+    if (isLoggedIn) {
+      // 자동 로그인 성공 → 사용자 정보 + 아이템 로드 후 메인 화면
+      await ref.read(userProvider.notifier).loadMe();
+      await ref.read(itemsProvider.notifier).loadMyItems();
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MainScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 800),
+        ),
+      );
+    } else {
+      // 로그인 필요 → 로그인 화면
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 800),
+        ),
+      );
+    }
   }
 
   @override
