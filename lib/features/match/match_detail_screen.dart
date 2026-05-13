@@ -10,6 +10,12 @@ class MatchDetailScreen extends StatefulWidget {
   final double similarityScore;
   final List<String> myTags;
   final List<String> counterpartTags;
+  final String? myLocation;
+  final String? myDate;
+  final String? myImageUrl;
+  final String? counterpartLocation;
+  final String? counterpartDate;
+  final String? counterpartImageUrl;
 
   const MatchDetailScreen({
     super.key,
@@ -20,6 +26,12 @@ class MatchDetailScreen extends StatefulWidget {
     required this.similarityScore,
     this.myTags = const [],
     this.counterpartTags = const [],
+    this.myLocation,
+    this.myDate,
+    this.myImageUrl,
+    this.counterpartLocation,
+    this.counterpartDate,
+    this.counterpartImageUrl,
   });
 
   @override
@@ -170,6 +182,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final int scorePercent = (widget.similarityScore * 100).toInt();
+    final allTags = <String>{...widget.myTags, ...widget.counterpartTags}.toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -233,23 +246,23 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _buildItemColumn('내 분실물', widget.myItemTitle, '강남역 2번 출구', '2026-03-20')),
-                        Container(width: 1, height: 160, color: Colors.grey.shade200),
-                        Expanded(child: _buildItemColumn('습득물', widget.counterpartTitle, '강남역 2번 출구', '2026-03-20')),
+                        Expanded(child: _buildItemColumn('내 분실물', widget.myItemTitle, widget.myLocation ?? '정보 없음', widget.myDate ?? '', widget.myImageUrl)),
+                        Container(width: 1, height: 200, color: Colors.grey.shade200),
+                        Expanded(child: _buildItemColumn('습득물', widget.counterpartTitle, widget.counterpartLocation ?? '정보 없음', widget.counterpartDate ?? '', widget.counterpartImageUrl)),
                       ],
                     ),
                     const SizedBox(height: 20),
                     const Divider(thickness: 1, color: Colors.black12),
                     const SizedBox(height: 20),
                     
-                    // 태그 목록
-                    _buildTagRow('#지갑'),
-                    const SizedBox(height: 12),
-                    _buildTagRow('#검정색'),
-                    const SizedBox(height: 12),
-                    _buildTagRow('#강남역'),
-                    const SizedBox(height: 12),
-                    _buildTagRow('#공나도'),
+                    // 태그 목록 - 실제 데이터 사용
+                    if (allTags.isEmpty)
+                      Text('태그 정보 없음', style: TextStyle(color: Colors.grey.shade400, fontSize: 13))
+                    else
+                      ...allTags.map((tag) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildTagRow('#$tag'),
+                      )),
                   ],
                 ),
               ),
@@ -287,7 +300,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
     );
   }
 
-  Widget _buildItemColumn(String type, String title, String loc, String date) {
+  Widget _buildItemColumn(String type, String title, String loc, String date, String? imageUrl) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Column(
@@ -301,6 +314,12 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(12),
             ),
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(imageUrl, fit: BoxFit.cover),
+                  )
+                : Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 32),
           ),
           const SizedBox(height: 16),
           Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
@@ -310,7 +329,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
             children: [
               Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
               const SizedBox(width: 4),
-              Text(loc, style: TextStyle(fontSize: 12, color: Colors.grey.shade800)),
+              Flexible(child: Text(loc, style: TextStyle(fontSize: 12, color: Colors.grey.shade800), overflow: TextOverflow.ellipsis)),
             ],
           ),
           const SizedBox(height: 4),
