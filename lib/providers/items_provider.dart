@@ -89,15 +89,22 @@ class ItemsNotifier extends StateNotifier<Map<String, List<Map<String, dynamic>>
         location: item['location'] ?? '',
         rawText: item['desc'] ?? item['raw_text'],
       );
-      final newItemId = result['id'] ?? result['item_id'];
 
-      // 로컬 상태에 추가
-      final normalized = _normalizeItem({...item, 'id': newItemId, ...result}, 'lost');
+      // 서버 응답이 {"data": {...}} 형식일 수 있으므로 data 필드 우선 확인
+      final data = result['data'] is Map
+          ? Map<String, dynamic>.from(result['data'])
+          : result;
+      final newItemId = (data['id'] ?? data['item_id'] ??
+          result['id'] ?? result['item_id']) as int?;
+
+      // ID가 유효할 때만 로컬 상태에 추가
+      if (newItemId == null) return null;
+      final normalized = _normalizeItem({...item, 'id': newItemId, ...data}, 'lost');
       state = {
         ...state,
         'lost': [normalized, ...state['lost']!],
       };
-      return newItemId as int?;
+      return newItemId;
     } catch (_) {
       return null;
     }
@@ -111,14 +118,22 @@ class ItemsNotifier extends StateNotifier<Map<String, List<Map<String, dynamic>>
         location: item['location'] ?? '',
         rawText: item['desc'] ?? item['raw_text'],
       );
-      final newItemId = result['id'] ?? result['item_id'];
 
-      final normalized = _normalizeItem({...item, 'id': newItemId, ...result}, 'found');
+      // 서버 응답이 {"data": {...}} 형식일 수 있으므로 data 필드 우선 확인
+      final data = result['data'] is Map
+          ? Map<String, dynamic>.from(result['data'])
+          : result;
+      final newItemId = (data['id'] ?? data['item_id'] ??
+          result['id'] ?? result['item_id']) as int?;
+
+      // ID가 유효할 때만 로컬 상태에 추가
+      if (newItemId == null) return null;
+      final normalized = _normalizeItem({...item, 'id': newItemId, ...data}, 'found');
       state = {
         ...state,
         'found': [normalized, ...state['found']!],
       };
-      return newItemId as int?;
+      return newItemId;
     } catch (_) {
       return null;
     }

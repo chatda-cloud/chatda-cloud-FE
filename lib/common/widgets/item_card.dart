@@ -212,7 +212,7 @@ class ItemGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLost = item['type'] == 'lost';
-    final match = item['match'] as int;
+    final match = (item['match'] as num?)?.toInt() ?? 0;
 
     return GestureDetector(
       onTap: () {
