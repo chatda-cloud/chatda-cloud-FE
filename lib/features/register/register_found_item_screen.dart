@@ -23,7 +23,8 @@ class _RegisterFoundItemScreenState extends ConsumerState<RegisterFoundItemScree
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _locationController = TextEditingController();
-  final _dateController = TextEditingController(text: '2026년 04월 05일');
+  final _dateController = TextEditingController(
+      text: '${DateTime.now().year}년 ${DateTime.now().month.toString().padLeft(2, '0')}월 ${DateTime.now().day.toString().padLeft(2, '0')}일');
   DateTime? _selectedDate;
   bool _showManualTagInput = false;
   bool _hasUploadedImage = false;

@@ -54,7 +54,7 @@ class UploadService {
   }) async {
     await _client.mainDio.post(
       '/api/items/$itemId/process-tags',
-      data: {'s3Key': s3Key},
+      data: {'s3_key': s3Key},
     );
   }
 

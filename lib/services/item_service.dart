@@ -18,17 +18,16 @@ class ItemService {
     required String location,
     String? rawText,
   }) async {
-    final formData = FormData.fromMap({
-      'item_name': itemName,
-      'date_start': dateStart,
-      'date_end': dateEnd,
-      'location': location,
-      if (rawText != null && rawText.isNotEmpty) 'raw_text': rawText,
-    });
     final response = await _client.mainDio.post(
       '/api/items/lost',
-      data: formData,
-      options: Options(contentType: 'multipart/form-data'),
+      data: {
+        'item_name': itemName,
+        'category': '기타', // 필수 파라미터 기본값 설정
+        'date_start': dateStart,
+        'date_end': dateEnd,
+        'location': location,
+        if (rawText != null && rawText.isNotEmpty) 'raw_text': rawText,
+      },
     );
     return response.data ?? {};
   }
@@ -74,16 +73,15 @@ class ItemService {
     required String location,
     String? rawText,
   }) async {
-    final formData = FormData.fromMap({
-      'item_name': itemName,
-      'found_date': foundDate,
-      'location': location,
-      if (rawText != null && rawText.isNotEmpty) 'raw_text': rawText,
-    });
     final response = await _client.mainDio.post(
       '/api/items/found',
-      data: formData,
-      options: Options(contentType: 'multipart/form-data'),
+      data: {
+        'item_name': itemName,
+        'category': '기타', // 필수 파라미터 기본값 설정
+        'found_date': foundDate,
+        'location': location,
+        if (rawText != null && rawText.isNotEmpty) 'raw_text': rawText,
+      },
     );
     return response.data ?? {};
   }
