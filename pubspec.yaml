@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  sentry_flutter: ^9.20.0
   flutter:
     sdk: flutter
 
@@ -45,8 +46,10 @@ dependencies:
   # firebase_messaging: ^14.7.10
 
   flutter_secure_storage: ^9.0.0
+  sentry_dio: ^9.20.0
 
 dev_dependencies:
+  sentry_dart_plugin: ^3.3.0
   flutter_test:
     sdk: flutter
 
@@ -104,3 +107,9 @@ flutter_icons:
   android: "ic_launcher"
   ios: true
   image_path: "logo.png"
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  project: flutter
+  org: chatda

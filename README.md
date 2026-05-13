@@ -64,6 +64,7 @@
 - **Network**: Dio (HTTP Client)
 - **Storage**: Flutter Secure Storage (Tokens)
 - **Image**: Image Picker, Cached Network Image
+- **Error Tracking**: Sentry (sentry_flutter)
 
 ## ⚙️ 시작하기 (Getting Started)
 
@@ -77,8 +78,9 @@
 
 ```ini
 # .env 파일 예시
-BASE_URL=https://your-api-server.com
-LAMBDA_URL=https://your-lambda-endpoint.com
+API_BASE_URL=https://your-api-server.com
+LAMBDA_BASE_URL=https://your-lambda-endpoint.com
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 ```
 
 ### 3. 의존성 설치 및 실행
